@@ -37,6 +37,7 @@ jobs:
       - name: Bump Version
         id: bump_version
         run: |
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
           case "$BUMP" in
             major) ((MAJOR++)); MINOR=0; PATCH=0 ;;
             minor) ((MINOR++)); PATCH=0 ;;
