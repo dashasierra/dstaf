@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools >= 80.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dstaf"
+version = "0.0.1"
+authors = [
+  { name="Dasha Sierra", email="pypi@dashasierra.com" },
+]
+description = "Dasha Sierra Text Application Framework"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+        'Development Status :: 2 - Pre-Alpha',
+        'Environment :: Console',
+        'Intended Audience :: Developers',
+        'Topic :: Text Processing :: General',
+        'License :: OSI Approved :: Apache Software License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
+        'Programming Language :: Python :: 3.13',
+        'Programming Language :: Python :: Implementation :: CPython',
+        'Topic :: Software Development :: User Interfaces',
+        'Topic :: Terminals',
+    ]
+license = "MIT"
+license-files = ["LICENSE"]
+
+[project.urls]
+Homepage = "https://github.com/dashasierra/dstaf"
+Issues = "https://github.com/dashasierra/dstaf/issues"
+
+[tool.poetry.group.test.dependencies]
+flake8 = ">=7.2.0,<8.0.0"
+
+[tool.semantic_release]
+version_variable = [
+    "dstaf/__init__.py:__version__",
+    "pyproject.toml:version"
+]
+branch = "master"
+upload_to_pypi = false
+upload_to_release = true
+build_command = "pip install poetry && poetry build"
