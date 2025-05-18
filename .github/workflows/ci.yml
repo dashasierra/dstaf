@@ -1,43 +1,72 @@
-name: Sync Release Version
+name: Bump Version & Create Release
 
 on:
-  release:
-    types: [published]
+  pull_request:
+    types: [closed]
 
 jobs:
-  update_version:
+  bump_version:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Extract version from release tag
+      - name: Extract current version
         id: get_version
         run: |
-          VERSION=${{ github.event.release.tag_name }}
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          CURRENT_VERSION=$(grep '^version =' pyproject.toml | awk -F'=' '{print $2}' | tr -d ' "')
+          echo "CURRENT_VERSION=$CURRENT_VERSION" >> $GITHUB_ENV
+
+      - name: Determine version bump type
+        id: get_bump_type
+        run: |
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          if [[ "$PR_TITLE" == patch:* ]]; then
+            BUMP="patch"
+          elif [[ "$PR_TITLE" == minor:* ]]; then
+            BUMP="minor"
+          elif [[ "$PR_TITLE" == major:* ]]; then
+            BUMP="major"
+          else
+            BUMP="patch"  # Default to patch if unspecified
+          fi
+          echo "BUMP=$BUMP" >> $GITHUB_ENV
+
+      - name: Bump Version
+        id: bump_version
+        run: |
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+          case "$BUMP" in
+            major) ((MAJOR++)); MINOR=0; PATCH=0 ;;
+            minor) ((MINOR++)); PATCH=0 ;;
+            patch) ((PATCH++)) ;;
+          esac
+          NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
 
       - name: Update version in pyproject.toml
         run: |
-          sed -i "s/^version = .*/version = \"$VERSION\"/" pyproject.toml
+          sed -i "s/^version = .*/version = \"$NEW_VERSION\"/" pyproject.toml
 
       - name: Update __version__ in __init__.py
         run: |
-          sed -i "s/^__version__ = .*/__version__ = \"$VERSION\"/" dstaf/__init__.py
+          sed -i "s/^__version__ = .*/__version__ = \"$NEW_VERSION\"/" dstaf/__init__.py
 
-      - name: Create new branch
+      - name: Commit and push version update
         run: |
-          BRANCH_NAME="sync-release-version-$VERSION"
-          git checkout -b $BRANCH_NAME
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
           git add pyproject.toml dstaf/__init__.py
-          git commit -m "Sync version to $VERSION"
-          git push origin $BRANCH_NAME
-          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+          git commit -m "Bump version to $NEW_VERSION"
+          git push origin master
 
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v5
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
         with:
-          branch: ${{ env.BRANCH_NAME }}
-          title: "Sync version to ${{ env.VERSION }}"
-          body: "Automated version synchronization from release."
-          base: master
+          tag_name: "v${{ env.NEW_VERSION }}"
+          name: "Release ${{ env.NEW_VERSION }}"
+          body: "Automated release from merged PR."
+          draft: false
+          prerelease: false
