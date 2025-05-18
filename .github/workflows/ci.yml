@@ -23,11 +23,11 @@ jobs:
         id: get_bump_type
         run: |
           PR_TITLE="${{ github.event.pull_request.title }}"
-          if [[ "$PR_TITLE" == patch:* ]]; then
+          if [[ "$PR_TITLE" == Patch:* ]]; then
             BUMP="patch"
-          elif [[ "$PR_TITLE" == minor:* ]]; then
+          elif [[ "$PR_TITLE" == Minor:* ]]; then
             BUMP="minor"
-          elif [[ "$PR_TITLE" == major:* ]]; then
+          elif [[ "$PR_TITLE" == Major:* ]]; then
             BUMP="major"
           else
             BUMP="patch"  # Default to patch if unspecified
@@ -40,10 +40,20 @@ jobs:
           CURRENT_VERSION=$(grep '^version =' pyproject.toml | awk -F'=' '{print $2}' | tr -d ' "')
           CURRENT_VERSION=$(echo "$CURRENT_VERSION" | tr -d '\r\n')  # Cleans up unexpected characters
           
+          echo "Extracted version string: $CURRENT_VERSION"
+          
           IFS='.' read -r MAJOR MINOR PATCH <<< "$(echo $CURRENT_VERSION)"
+          
           MAJOR=${MAJOR:-0}
           MINOR=${MINOR:-0}
           PATCH=${PATCH:-0}
+          
+          # Ensure values are numeric
+          MAJOR=$((MAJOR + 0))
+          MINOR=$((MINOR + 0))
+          PATCH=$((PATCH + 0))
+          
+          echo "Parsed version numbers: MAJOR=$MAJOR, MINOR=$MINOR, PATCH=$PATCH"
           
           case "$BUMP" in
             major) ((MAJOR++)); MINOR=0; PATCH=0 ;;
