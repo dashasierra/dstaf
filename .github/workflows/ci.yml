@@ -1,53 +1,43 @@
-name: CI
+name: Sync Release Version
+
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+  release:
+    types: [published]
 
 jobs:
-  Quality:
+  update_version:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-python@v5
-      with:
-        python-version: 3.9
-    - name: Install Python Poetry
-      uses: abatilo/actions-poetry@v2.1.0
-      with:
-        poetry-version: 2.1.3
-    - name: Configure poetry
-      shell: bash
-      run: python -m poetry config virtualenvs.in-project true
-    - name: View poetry version
-      run: poetry --version
-    - name: Install dependencies
-      run: |
-        python -m poetry install --with test
-    - name: Lint with flake8
-      run: |
-        # stop the build if there are Python syntax errors or undefined names
-        python -m poetry run flake8 . --exclude .venv --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        python -m poetry run flake8 . --exclude .venv --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: Test with pytest (Disabled)
-      run: |
-        echo "python -m poetry run python -m pytest -v tests"
-
-  Release:
-    needs: Quality
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master' && !contains(github.event.head_commit.message, 'chore(release):')
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/setup-python@v5
-        with:
-          python-version: 3.9
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Semantic Release
+
+      - name: Extract version from release tag
+        id: get_version
         run: |
-          pip install python-semantic-release
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          semantic-release publish
+          VERSION=${{ github.event.release.tag_name }}
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Update version in pyproject.toml
+        run: |
+          sed -i "s/^version = .*/version = \"$VERSION\"/" pyproject.toml
+
+      - name: Update __version__ in __init__.py
+        run: |
+          sed -i "s/^__version__ = .*/__version__ = \"$VERSION\"/" dstaf/__init__.py
+
+      - name: Create new branch
+        run: |
+          BRANCH_NAME="sync-release-version-$VERSION"
+          git checkout -b $BRANCH_NAME
+          git add pyproject.toml dstaf/__init__.py
+          git commit -m "Sync version to $VERSION"
+          git push origin $BRANCH_NAME
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          branch: ${{ env.BRANCH_NAME }}
+          title: "Sync version to ${{ env.VERSION }}"
+          body: "Automated version synchronization from release."
+          base: master
