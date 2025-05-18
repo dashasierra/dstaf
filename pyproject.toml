@@ -35,6 +35,9 @@ license-files = ["LICENSE"]
 Homepage = "https://github.com/dashasierra/dstaf"
 Issues = "https://github.com/dashasierra/dstaf/issues"
 
+[tool.poetry.group.test.dependencies]
+flake8 = ">=7.2.0,<8.0.0"
+
 [tool.semantic_release]
 version_variable = [
     "dstaf/__init__.py:__version__",
