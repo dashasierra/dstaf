@@ -70,5 +70,5 @@ jobs:
       run: |
         gh release create "${{ steps.dry-bump-tag.outputs.new_tag }}" \
           --repo="${{ github.repository }}" \
-          --title="Release ${{ steps.dry-bump-tag.outputs.new_tag }}" \
+          --title="DStaf ${{ steps.dry-bump-tag.outputs.new_tag }}" \
           --generate-notes
