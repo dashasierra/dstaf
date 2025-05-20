@@ -55,15 +55,6 @@ jobs:
       id: major-version
       run: echo "major=v$(echo ${{ steps.dry-bump-tag.outputs.new_tag }} | cut -d. -f1)" >> $GITHUB_ENV
 
-    - name: Create or update tags
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        git tag -f ${{ steps.dry-bump-tag.outputs.new_tag }}
-        git push -f origin v${{ steps.dry-bump-tag.outputs.new_tag }}
-        git tag -f "$major"
-        git push -f origin "$major"
-
     - name: Create Release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -72,3 +63,12 @@ jobs:
           --repo="${{ github.repository }}" \
           --title="Release ${{ steps.dry-bump-tag.outputs.new_tag }}" \
           --generate-notes
+
+    - name: Create or update tags
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        git tag -f ${{ steps.dry-bump-tag.outputs.new_tag }}
+        git push -f origin v${{ steps.dry-bump-tag.outputs.new_tag }}
+        git tag -f "$major"
+        git push -f origin "$major"
