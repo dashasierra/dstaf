@@ -55,7 +55,7 @@ jobs:
       id: major-version
       run: echo "major=v$(echo ${{ steps.dry-bump-tag.outputs.new_tag }} | cut -d. -f1)" >> $GITHUB_ENV
 
-    - name: Create or update major version tag
+    - name: Create or update tags
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
