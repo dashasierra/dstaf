@@ -48,19 +48,8 @@ jobs:
         git commit -m "Bump Version to ${NEW_TAG}"
         git push origin master
 
-    - name: Re-Checkout
+    - name: Checkout for Release
       uses: actions/checkout@v4
-
-    - name: Extract major version
-      id: major-version
-      run: echo "major=v$(echo ${{ steps.dry-bump-tag.outputs.new_tag }} | cut -d. -f1)" >> $GITHUB_ENV
-
-    - name: Create or update major version tag
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        git tag -f "$major"
-        git push -f origin "$major"
 
     - name: Create Release
       env:
@@ -70,3 +59,17 @@ jobs:
           --repo="${{ github.repository }}" \
           --title="Release ${{ steps.dry-bump-tag.outputs.new_tag }}" \
           --generate-notes
+
+    - name: Extract major version
+      id: major-version
+      run: echo "major=v$(echo ${{ steps.dry-bump-tag.outputs.new_tag }} | cut -d. -f1)" >> $GITHUB_ENV
+
+    - name: Checkout for Major Tag
+      uses: actions/checkout@v4
+
+    - name: Create or update major version tag
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        git tag -f "$major"
+        git push -f origin "$major"
