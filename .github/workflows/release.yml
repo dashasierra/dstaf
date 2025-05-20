@@ -55,10 +55,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        git tag -s "$major"
+        git tag -f "$major"
         git push -f origin "$major"
-        git tag -s ${{ steps.bump-tag.outputs.new_tag }}
-        git push -f origin ${{ steps.bump-tag.outputs.new_tag }}
 
     - name: Checkout for Release
       uses: actions/checkout@v4
