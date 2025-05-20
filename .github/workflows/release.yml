@@ -21,14 +21,8 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Generate Release Notes
-      uses: johnyherangi/create-release-notes@main
-      id: create-release-notes
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
     - name: Increment Version
-      id: dry-bump-tag
+      id: bump-tag
       uses: anothrNick/github-tag-action@1.73.0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -38,7 +32,7 @@ jobs:
 
     - name: Update Version Strings
       env:
-        NEW_TAG: ${{ steps.dry-bump-tag.outputs.new_tag }}
+        NEW_TAG: ${{ steps.bump-tag.outputs.new_tag }}
       run: |
         git config user.name "GitHub Actions Bot"
         git config user.email "gh_actions@dashasierra.com"
@@ -50,10 +44,12 @@ jobs:
 
     - name: Checkout for Tag
       uses: actions/checkout@v4
+      with:
+        ref: master
 
     - name: Extract major version
       id: major-version
-      run: echo "major=v$(echo ${{ steps.dry-bump-tag.outputs.new_tag }} | cut -d. -f1)" >> $GITHUB_ENV
+      run: echo "major=v$(echo ${{ steps.bump-tag.outputs.new_tag }} | cut -d. -f1)" >> $GITHUB_ENV
 
     - name: Create or update tags
       env:
@@ -61,17 +57,19 @@ jobs:
       run: |
         git tag -f "$major"
         git push -f origin "$major"
-        git tag -f ${{ steps.dry-bump-tag.outputs.new_tag }}
-        git push -f origin ${{ steps.dry-bump-tag.outputs.new_tag }}
+        git tag -f ${{ steps.bump-tag.outputs.new_tag }}
+        git push -f origin ${{ steps.bump-tag.outputs.new_tag }}
 
     - name: Checkout for Release
       uses: actions/checkout@v4
+      with:
+        ref: master
 
     - name: Create Release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        gh release create "${{ steps.dry-bump-tag.outputs.new_tag }}" \
+        gh release create "${{ steps.bump-tag.outputs.new_tag }}" \
           --repo="${{ github.repository }}" \
-          --title="DStaf ${{ steps.dry-bump-tag.outputs.new_tag }}" \
+          --title="DStaf ${{ steps.bump-tag.outputs.new_tag }}" \
           --generate-notes
