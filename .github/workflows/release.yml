@@ -10,8 +10,8 @@ on:
 
 jobs:
 
-  deploy:
-    name: Create new release
+  release:
+    name: Create New Release
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -27,7 +27,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Dry bump version
+    - name: Increment Version
       id: dry-bump-tag
       uses: anothrNick/github-tag-action@1.73.0
       env:
@@ -36,7 +36,7 @@ jobs:
         DRY_RUN: true
         DEFAULT_BUMP: patch
 
-    - name: Commit the new version of the package
+    - name: Update Version Strings
       env:
         NEW_TAG: ${{ steps.dry-bump-tag.outputs.new_tag }}
       run: |
@@ -45,16 +45,28 @@ jobs:
         sed -i "s/^version = .*/version = \"${NEW_TAG}\"/" pyproject.toml
         sed -i "s/^__version__ = .*/__version__ = \"${NEW_TAG}\"/" dstaf/__init__.py
         git add pyproject.toml dstaf/__init__.py
-        git commit -m "Update Version to ${NEW_TAG}"
+        git commit -m "Bump Version to ${NEW_TAG}"
         git push origin master
 
     - name: Re-Checkout
       uses: actions/checkout@v4
 
-    - name: Release
-      uses: softprops/action-gh-release@v2
-      with:
-        name: "DS-TAF ${{ steps.dry-bump-tag.outputs.new_tag }}"
-        tag_name: ${{ steps.dry-bump-tag.outputs.new_tag }}
-        body: ${{ steps.create-release-notes.outputs.release-notes }}
-        token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Extract major version
+      id: major-version
+      run: echo "major=v$(echo ${{ steps.dry-bump-tag.outputs.new_tag }} | cut -d. -f1)" >> $GITHUB_ENV
+
+    - name: Create or update major version tag
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        git tag -f "$major"
+        git push -f origin "$major"
+
+    - name: Create Release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        gh release create "${{ steps.dry-bump-tag.outputs.new_tag }}" \
+          --repo="${{ github.repository }}" \
+          --title="Release ${{ steps.dry-bump-tag.outputs.new_tag }}" \
+          --generate-notes
