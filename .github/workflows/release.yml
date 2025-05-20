@@ -69,6 +69,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
+        gh auth login --with-token <<< "${{ secrets.GITHUB_TOKEN }}"
         gh release create "${{ steps.bump-tag.outputs.new_tag }}" \
           --repo="${{ github.repository }}" \
           --title="DStaf ${{ steps.bump-tag.outputs.new_tag }}" \
