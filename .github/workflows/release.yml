@@ -48,7 +48,7 @@ jobs:
         git commit -m "Bump Version to ${NEW_TAG}"
         git push origin master
 
-    - name: Checkout for Release
+    - name: Checkout for Tag
       uses: actions/checkout@v4
 
     - name: Extract major version
@@ -63,6 +63,9 @@ jobs:
         git push -f origin "$major"
         git tag -f ${{ steps.dry-bump-tag.outputs.new_tag }}
         git push -f origin ${{ steps.dry-bump-tag.outputs.new_tag }}
+
+    - name: Checkout for Release
+      uses: actions/checkout@v4
 
     - name: Create Release
       env:
