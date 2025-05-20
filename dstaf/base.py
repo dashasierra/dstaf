@@ -23,8 +23,9 @@ _app_server_default_instance = None
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s.%(msecs)03d+00:00 [%(levelname)s] %(message)s",
-    datefmt='%Y-%m-%d %H:%M:%S'
+    level=logging.INFO,
+    format="%(asctime)s.%(msecs)03d+00:00 [%(levelname)s] %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
 )
 logging.Formatter.converter = time.gmtime
 
@@ -114,16 +115,28 @@ class ApplicationServer:
 
     def remove_application(self, thread):
         if not isinstance(thread, concurrent.futures._base.Future):
-            raise self.Exceptions.NotFuture(f"remove_application expected Future, got {type(thread)}")
-        logger.debug("remove_application %s called, setting running=False to runtime", id(thread))
+            raise self.Exceptions.NotFuture(
+                f"remove_application expected Future, got {
+                    type(thread)}"
+            )
+        logger.debug(
+            "remove_application %s called, setting running=False to runtime", id(thread)
+        )
         while thread.running():
             self.applications[thread].runtime.running = False
-        logger.info("Application 0x%s (%s) removed", id(thread), self.applications[thread].runtime.app_name)
+        logger.info(
+            "Application 0x%s (%s) removed",
+            id(thread),
+            self.applications[thread].runtime.app_name,
+        )
         del self.applications[thread]
 
-
     def shutdown(self):
-        logger.info("Shutdown %s (%s) Signal Received", self.__class__.__name__, self.server_name)
+        logger.info(
+            "Shutdown %s (%s) Signal Received",
+            self.__class__.__name__,
+            self.server_name,
+        )
         for application_thread in list(self.applications.keys()):
             logger.debug("Calling remove_application for %s", application_thread)
             self.remove_application(application_thread)

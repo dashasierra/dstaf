@@ -10,13 +10,13 @@ authors = [
 ]
 description = "Dasha Sierra Text Application Framework"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.12"
 classifiers = [
     'Development Status :: 2 - Pre-Alpha',
     'Environment :: Console',
     'Intended Audience :: Developers',
     'Topic :: Text Processing :: General',
-    'License :: OSI Approved :: MIT',
+    'License :: OSI Approved :: Eiffel Forum License',
     'Operating System :: OS Independent',
     'Programming Language :: Python',
     'Programming Language :: Python :: 3.9',
@@ -28,7 +28,7 @@ classifiers = [
     'Topic :: Software Development :: User Interfaces',
     'Topic :: Terminals',
 ]
-license = "MIT"
+license = "EFL-2.0"
 license-files = ["LICENSE"]
 
 [project.urls]
@@ -36,4 +36,7 @@ Homepage = "https://github.com/dashasierra/dstaf"
 Issues = "https://github.com/dashasierra/dstaf/issues"
 
 [tool.poetry.group.test.dependencies]
+autopep8 = ">=2.3.2,<3"
 flake8 = ">=7.2.0,<8.0.0"
+isort = ">=6.0.1,<7"
+black = ">=25.1.0,<26"
