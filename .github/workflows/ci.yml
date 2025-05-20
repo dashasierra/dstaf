@@ -28,13 +28,14 @@ jobs:
         WITH_V: false
         DRY_RUN: true
         DEFAULT_BUMP: patch
-    - name: Commit the new version of the python package
+
+    - name: Commit the new version of the package
       env:
         NEW_TAG: ${{ steps.dry-bump-tag.outputs.new_tag }}
       run: |
         git config user.name "GitHub Actions Bot"
         sed -i "s/^version = .*/version = \"${NEW_TAG}\"/" pyproject.toml
-        sed -i "s/^__version__ = .*/__version__ = \"$NEW_VERSION\"/" dstaf/__init__.py
+        sed -i "s/^__version__ = .*/__version__ = \"${NEW_TAG}\"/" dstaf/__init__.py
         git add pyproject.toml dstaf/__init__.py
         git commit -m "[tag] version ${NEW_TAG}"
         git push origin master
@@ -45,3 +46,4 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         WITH_V: false
+        DEFAULT_BUMP: patch
