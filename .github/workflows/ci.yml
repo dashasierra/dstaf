@@ -45,14 +45,16 @@ jobs:
         sed -i "s/^version = .*/version = \"${NEW_TAG}\"/" pyproject.toml
         sed -i "s/^__version__ = .*/__version__ = \"${NEW_TAG}\"/" dstaf/__init__.py
         git add pyproject.toml dstaf/__init__.py
-        git commit -m "[tag] version ${NEW_TAG}"
+        git commit -m "Update Version to ${NEW_TAG}"
         git push origin master
 
-    - name: Create GitHub Release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Re-Checkout
+      uses: actions/checkout@v4
+
+    - name: Release
+      uses: softprops/action-gh-release@v2
       with:
+        name: "DS-TAF ${{ steps.dry-bump-tag.outputs.new_tag }}"
         tag_name: ${{ steps.dry-bump-tag.outputs.new_tag }}
-        release_name: "Release ${{ steps.dry-bump-tag.outputs.new_tag }}"
         body: ${{ steps.create-release-notes.outputs.release-notes }}
+        token: ${{ secrets.GITHUB_TOKEN }}
