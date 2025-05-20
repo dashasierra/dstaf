@@ -62,7 +62,7 @@ jobs:
         git tag -f "$major"
         git push -f origin "$major"
         git tag -f ${{ steps.dry-bump-tag.outputs.new_tag }}
-        git push -f origin ${{ steps.dry-bump-tag.outputs.new_tag }}
+        git push -f origin v${{ steps.dry-bump-tag.outputs.new_tag }}
 
     - name: Create Release
       env:
