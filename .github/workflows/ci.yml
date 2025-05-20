@@ -13,6 +13,8 @@ jobs:
   deploy:
     name: Create new release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     if: github.event_name == 'push' &&  github.ref == 'refs/heads/master'
     steps:
     - name: Checkout
@@ -20,18 +22,17 @@ jobs:
 
     - name: Dry bump version
       id: dry-bump-tag
-      uses: anothrNick/github-tag-action@1.36.0
+      uses: anothrNick/github-tag-action@1.73.0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         WITH_V: false
         DRY_RUN: true
-
+        DEFAULT_BUMP: patch
     - name: Commit the new version of the python package
       env:
         NEW_TAG: ${{ steps.dry-bump-tag.outputs.new_tag }}
       run: |
         git config user.name "GitHub Actions Bot"
-        git config user.email "pypi@dashasierra.com"
         sed -i "s/^version = .*/version = \"${NEW_TAG}\"/" pyproject.toml
         sed -i "s/^__version__ = .*/__version__ = \"$NEW_VERSION\"/" dstaf/__init__.py
         git add pyproject.toml dstaf/__init__.py
@@ -40,7 +41,7 @@ jobs:
 
     - name: Push tag
       id: push-tag
-      uses: anothrNick/github-tag-action@1.36.0
+      uses: anothrNick/github-tag-action@1.73.0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         WITH_V: false
