@@ -16,9 +16,16 @@ jobs:
     permissions:
       contents: write
     if: github.event_name == 'push' &&  github.ref == 'refs/heads/master'
+
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+
+    - name: Generate Release Notes
+      uses: johnyherangi/create-release-notes@main
+      id: create-release-notes
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Dry bump version
       id: dry-bump-tag
@@ -40,10 +47,12 @@ jobs:
         git commit -m "[tag] version ${NEW_TAG}"
         git push origin master
 
-    - name: Push tag
-      id: push-tag
-      uses: anothrNick/github-tag-action@1.73.0
+    - name: Create GitHub Release
+      uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        WITH_V: false
-        DEFAULT_BUMP: patch
+        NEW_TAG: ${{ steps.dry-bump-tag.outputs.new_tag }}
+      with:
+        tag_name: "${NEW_TAG}"
+        release_name: "Release ${NEW_TAG}"
+        body: ${{ steps.create-release-notes.outputs.release-notes }}
