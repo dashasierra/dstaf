@@ -57,4 +57,4 @@ jobs:
         name: "DS-TAF ${{ steps.dry-bump-tag.outputs.new_tag }}"
         tag_name: ${{ steps.dry-bump-tag.outputs.new_tag }}
         body: ${{ steps.create-release-notes.outputs.release-notes }}
-        token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
+        token: ${{ secrets.GITHUB_TOKEN }}
