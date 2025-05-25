@@ -57,7 +57,7 @@ class ApplicationServer:
 
     def __init__(
         self,
-        name: str = "PyVision Application Server",
+        name: str = "DS Application Server",
         workers: int = int((cpu_count() * 2) + 1),
         autostart=False,
     ):
