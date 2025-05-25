@@ -72,11 +72,6 @@ jobs:
           --title="DStaf ${{ steps.bump-tag.outputs.new_tag }}" \
           --generate-notes
 
-on:
-  pull_request:
-    types: [opened, edited]
-
-jobs:
   check-title:
     name: Version Check
     runs-on: ubuntu-latest
