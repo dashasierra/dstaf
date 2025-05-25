@@ -71,3 +71,21 @@ jobs:
           --repo="${{ github.repository }}" \
           --title="DStaf ${{ steps.bump-tag.outputs.new_tag }}" \
           --generate-notes
+
+on:
+  pull_request:
+    types: [opened, edited]
+
+jobs:
+  check-title:
+    name: Version Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate Pull Request Title
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          if [[ ! "$PR_TITLE" =~ ^#(major|minor|patch|none) ]]; then
+            echo "Error: Pull request title must start with #major, #minor, #patch, or #none."
+            exit 1
+          fi
