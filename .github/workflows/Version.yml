@@ -47,20 +47,22 @@ jobs:
       with:
         ref: master
 
-    - name: Extract major version
+    - name: Extract major, minor, patch v-versions
       id: major-version
       run: |
-        echo "major=v$(echo ${{ steps.bump-tag.outputs.new_tag }} | cut -d. -f1)" >> $GITHUB_ENV
-        echo "minor=v$(echo ${{ steps.bump-tag.outputs.new_tag }} | cut -d. -f1,2)" >> $GITHUB_ENV
-
+        echo "vmajor=v$(echo ${{ steps.bump-tag.outputs.new_tag }} | cut -d. -f1)" >> $GITHUB_ENV
+        echo "vminor=v$(echo ${{ steps.bump-tag.outputs.new_tag }} | cut -d. -f1,2)" >> $GITHUB_ENV
+        echo "vpatch=v$(echo ${{ steps.bump-tag.outputs.new_tag }} | cut -d. -f1,2,3)" >> $GITHUB_ENV
     - name: Create or update tags
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        git tag -f "$major"
-        git push -f origin "$major"
-        git tag -f "$minor"
-        git push -f origin "$minor"
+        git tag -f "$vmajor"
+        git push -f origin "$vmajor"
+        git tag -f "$vminor"
+        git push -f origin "$vminor"
+        git tag -f "$vpatch"
+        git push -f origin "$vpatch"
 
     - name: Checkout for Release
       uses: actions/checkout@v4
@@ -79,6 +81,7 @@ jobs:
   check-title:
     name: Version Check
     runs-on: ubuntu-latest
+    if: github.event_name != 'push'
     steps:
       - name: Validate Pull Request Title
         env:
