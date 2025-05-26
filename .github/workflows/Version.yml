@@ -71,12 +71,13 @@ jobs:
 
     - name: Create Release
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.DSS_TOKEN }}
       run: |
         gh release create "${{ steps.bump-tag.outputs.new_tag }}" \
           --repo="${{ github.repository }}" \
           --title="DStaf ${{ steps.bump-tag.outputs.new_tag }}" \
           --generate-notes
+          --verify-signature
 
   check-title:
     name: Version Check
