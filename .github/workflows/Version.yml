@@ -57,11 +57,11 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.DSS_TOKEN }}
       run: |
-        git tag -s -f "$vmajor"
+        git tag -s "$vmajor"
         git push -f origin "$vmajor"
-        git tag -s -f "$vminor"
+        git tag -s "$vminor"
         git push -f origin "$vminor"
-        git tag -s -f "$vpatch"
+        git tag -s "$vpatch"
         git push -f origin "$vpatch"
 
     - name: Checkout for Release
