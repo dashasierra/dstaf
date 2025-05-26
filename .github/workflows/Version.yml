@@ -77,7 +77,6 @@ jobs:
           --repo="${{ github.repository }}" \
           --title="DStaf ${{ steps.bump-tag.outputs.new_tag }}" \
           --generate-notes
-          --verify-signature
 
   check-title:
     name: Version Check
