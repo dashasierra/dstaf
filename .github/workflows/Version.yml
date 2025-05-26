@@ -55,13 +55,13 @@ jobs:
         echo "vpatch=v$(echo ${{ steps.bump-tag.outputs.new_tag }} | cut -d. -f1,2,3)" >> $GITHUB_ENV
     - name: Create or update tags
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.DSS_TOKEN }}
       run: |
-        git tag -f "$vmajor"
+        git tag -f -s "$vmajor"
         git push -f origin "$vmajor"
-        git tag -f "$vminor"
+        git tag -f -s "$vminor"
         git push -f origin "$vminor"
-        git tag -f "$vpatch"
+        git tag -f -s "$vpatch"
         git push -f origin "$vpatch"
 
     - name: Checkout for Release
@@ -71,7 +71,7 @@ jobs:
 
     - name: Create Release
       env:
-        GITHUB_TOKEN: ${{ secrets.DSS_TOKEN }}
+        GH_TOKEN: ${{ secrets.DSS_TOKEN }}
       run: |
         gh release create "${{ steps.bump-tag.outputs.new_tag }}" \
           --repo="${{ github.repository }}" \
