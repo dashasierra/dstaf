@@ -18,6 +18,7 @@ class Alignment(Enum):
     """
     LEFT = 1
     CENTRE = 2
+    CENTER = 2
     RIGHT = 4
     TOP = 8
     BOTTOM = 16
@@ -27,12 +28,14 @@ class Alignment(Enum):
 class VerticalAlignment(Enum):
     TOP = Alignment.TOP
     CENTRE = Alignment.CENTRE
+    CENTER = Alignment.CENTRE
     BOTTOM = Alignment.BOTTOM
 
 
 class HorizontalAlignment(Enum):
     LEFT = Alignment.LEFT
     CENTRE = Alignment.CENTRE
+    CENTER = Alignment.CENTER
     RIGHT = Alignment.RIGHT
 
 
