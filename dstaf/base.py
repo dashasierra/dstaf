@@ -196,6 +196,15 @@ class ApplicationServer:
 
 
 class AppMeta:
+    """
+    Application Meta Class. This class provides metadata for
+    an Application Class.
+
+    This Class prevents incorrect types being assigned to
+    attributes in an effort to make sure the data types are
+    adhered to so little to no checking needs to be done
+    on data types during manipulation.
+    """
 
     def __setattr_function__(self, key:str, value:any):
         if key not in self.__dict__.keys():
