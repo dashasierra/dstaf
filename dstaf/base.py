@@ -75,14 +75,17 @@ class ApplicationServer:
         """
         self.server_name = name
         self.thread_pool = ThreadPoolExecutor(workers)
-        self.token_memory = SharedMemory(create=True, name="TokenStore", size=64)
+        self.token_memory = SharedMemory(
+            create=True, name="TokenStore", size=64)
         self.applications = {}
         self.__autostart = autostart
         self.__started = False
 
         # Set this instance as the default application server if one is not
         # setup
-        logging.info("ApplicationServer started (%s) instance", self.server_name)
+        logging.info(
+            "ApplicationServer started (%s) instance",
+            self.server_name)
         global _app_server_default_instance
         if _app_server_default_instance is None:
             logging.debug(
@@ -121,8 +124,7 @@ class ApplicationServer:
     def remove_application(self, thread):
         if not isinstance(thread, concurrent.futures._base.Future):
             raise self.Exceptions.NotFuture(
-                f"remove_application expected Future, got {
-                    type(thread)}"
+                "remove_application expected Future, " f"got {type(thread)}"
             )
         logger.debug("Sending stop to Application at 0x%s", id(thread))
         start = time.time()
@@ -131,13 +133,24 @@ class ApplicationServer:
             self.applications[thread].runtime.running = False
             if time.time() - start >= 3.0:
                 logger.warning(
-                    f"Application 0x{id(thread)} is not responding to termination signal"
+                    (
+                        f"Application 0x{id(thread)} is not responding "
+                        "to termination signal"
+                    )
                 )
-                logger.info(f"Attempting forceful termination for 0x{id(thread)}")
+                logger.info(
+                    (
+                        "Attempting forceful termination for "
+                        f"0x{id(thread)}"
+                    )
+                )
                 exception = thread.exception(2)
                 if exception:
                     logger.error(
-                        f"Application at 0x{id(thread)} threw exception: {exception}"
+                        (
+                            f"Application at 0x{id(thread)} threw exception"
+                            f": {exception}"
+                        )
                     )
         logger.info(
             "Application 0x%s (%s) Terminated",
@@ -153,7 +166,9 @@ class ApplicationServer:
             self.server_name,
         )
         for application_thread in list(self.applications.keys()):
-            logger.info("Terminating Application at 0x%s", id(application_thread))
+            logger.info(
+                "Terminating Application at 0x%s",
+                id(application_thread))
             self.remove_application(application_thread)
 
     def application_check(
@@ -166,7 +181,10 @@ class ApplicationServer:
                     error = key.exception()
                     if error:
                         logger.error(
-                            f"Application at 0x{id(key)} has thrown unhandled error"
+                            (
+                                f"Application at 0x{id(key)} "
+                                "has thrown unhandled error"
+                            )
                         )
                         tb = traceback.format_exception(
                             type(error), error, error.__traceback__
@@ -181,7 +199,10 @@ class ApplicationServer:
                                 logger.error(f"0x{id(key)}: {line_detail}")
                     else:
                         logger.warning(
-                            f"Application at 0x{id(key)} has stopped running. Terminating"
+                            (
+                                f"Application at 0x{id(key)} "
+                                "has stopped running. Terminating"
+                            )
                         )
                     not_alive.append(key)
             return tuple(not_alive)
@@ -222,7 +243,10 @@ class AppMeta:
             raise NameError(message)
         if not isinstance(value, type(self.__dict__[key])):
             raise TypeError(
-                f"Type mismatch. Expected type {self.__dict__[key]}, got {type(value)}"
+                (
+                    f"Type mismatch. Expected type {self.__dict__[key]}"
+                    f", got {type(value)}"
+                )
             )
         self.__dict__[key] = value
 
@@ -290,7 +314,8 @@ class Application(ABC):
 
         # Type Checks
         if not isinstance(app_id, UUID):
-            raise TypeError(f"{self.__class__.__name__}(app_id) must be of type UUID")
+            raise TypeError(
+                f"{self.__class__.__name__}(app_id) must be of type UUID")
         if not isinstance(app_meta, AppMeta):
             raise TypeError(
                 f"{self.__class__.__name__}(startup) must be of type AppMeta"
