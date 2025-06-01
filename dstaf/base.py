@@ -226,67 +226,65 @@ class ApplicationServer:
             self.thread_pool.shutdown()
 
 
-class AppMeta:
-    """
-    Application Meta Class. This class provides metadata for
-    an Application Class.
-
-    This Class prevents incorrect types being assigned to
-    attributes in an effort to make sure the data types are
-    adhered to so little to no checking needs to be done
-    on data types during manipulation.
-    """
-
-    def __setattr_function__(self, key: str, value: any):
-        if key not in self.__dict__.keys():
-            message = f"The attribute '{key}' does not exist in AppMeta"
-            raise NameError(message)
-        if not isinstance(value, type(self.__dict__[key])):
-            raise TypeError(
-                (
-                    f"Type mismatch. Expected type {self.__dict__[key]}"
-                    f", got {type(value)}"
-                )
-            )
-        self.__dict__[key] = value
-
-    def __init__(self, **kwargs):
-        """
-        Application MetaData
-        """
-
-        # Default Configuration
-        self.__dict__ = {
-            "maximised": False,  # Is Application Maximised
-            "cascade": False,  # Should application Cascade
-            "align": HorizontalAlignment.CENTRE,  # Horizontal Alignment to Container
-            "valign": VerticalAlignment.CENTRE,  # Vertical Alignment to Container
-            "dimensions": (40, 10),  # Width, Height as a tuple.
-        }
-        self.__setattr__ = self.__setattr_function__
-
-        for key, value in kwargs.items():
-            self.__setattr_function__(key=key, value=value)
-
-    def dict(self):
-        dictionary = {}
-        for key, value in self.__dict__.items():
-            if not key.startswith("_"):
-                dictionary[key] = value
-        return dictionary
-
-    def json(self, **kwargs):
-        return json.dumps(self.dict(), **kwargs)
-
-    def __repr__(self):
-        dictionary = {}
-        for key, value in self.__dict__.items():
-            if not key.startswith("_"):
-                dictionary[key] = value
-        return str(dictionary)
-
-
 class Application(ABC):
+    class AppMeta:
+        """
+        Application Meta Class. This class provides metadata for
+        an Application Class.
+
+        This Class prevents incorrect types being assigned to
+        attributes in an effort to make sure the data types are
+        adhered to so little to no checking needs to be done
+        on data types during manipulation.
+        """
+
+        def __setattr_function__(self, key: str, value: any):
+            if key not in self.__dict__.keys():
+                message = f"The attribute '{key}' does not exist in AppMeta"
+                raise NameError(message)
+            if not isinstance(value, type(self.__dict__[key])):
+                raise TypeError(
+                    (
+                        f"Type mismatch. Expected type {self.__dict__[key]}"
+                        f", got {type(value)}"
+                    )
+                )
+            self.__dict__[key] = value
+
+        def __init__(self, **kwargs):
+            """
+            Application MetaData
+            """
+
+            # Default Configuration
+            self.__dict__ = {
+                "maximised": False,  # Is Application Maximised
+                "cascade": False,  # Should application Cascade
+                "align": HorizontalAlignment.CENTRE,  # Horizontal Alignment to Container
+                "valign": VerticalAlignment.CENTRE,  # Vertical Alignment to Container
+                "dimensions": (40, 10),  # Width, Height as a tuple.
+            }
+            self.__setattr__ = self.__setattr_function__
+
+            for key, value in kwargs.items():
+                self.__setattr_function__(key=key, value=value)
+
+        def dict(self):
+            dictionary = {}
+            for key, value in self.__dict__.items():
+                if not key.startswith("_"):
+                    dictionary[key] = value
+            return dictionary
+
+        def json(self, **kwargs):
+            return json.dumps(self.dict(), **kwargs)
+
+        def __repr__(self):
+            dictionary = {}
+            for key, value in self.__dict__.items():
+                if not key.startswith("_"):
+                    dictionary[key] = value
+            return str(dictionary)
 
     def __repr__(self):
         return f"{self.__class__.__name__} at 0x{id(self)}"
@@ -316,7 +314,7 @@ class Application(ABC):
         if not isinstance(app_id, UUID):
             raise TypeError(
                 f"{self.__class__.__name__}(app_id) must be of type UUID")
-        if not isinstance(app_meta, AppMeta):
+        if not isinstance(app_meta, self.AppMeta):
             raise TypeError(
                 f"{self.__class__.__name__}(startup) must be of type AppMeta"
             )
