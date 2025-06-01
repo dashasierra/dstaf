@@ -1,21 +1,25 @@
-from enum import Enum
+import enum
 
 
-def _extend_enum(inherited_enum):
-    def wrapper(added_enum):
+def extend_enum(inherited_enum: enum.EnumMeta):
+    """
+    Class Decorator to Extend Enumerators
+    """
+
+    def wrapper(added_enum: enum.EnumMeta) -> enum.EnumMeta:
         joined = {}
         for item in inherited_enum:
             joined[item.name] = item.value
         for item in added_enum:
             joined[item.name] = item.value
-        return Enum(added_enum.__name__, joined)
+        return enum.Enum(added_enum.__name__, joined)
 
     return wrapper
 
 
-class Alignment(Enum):
+class Alignment(str, enum.Enum):
     """
-    Alignment enumerator
+    Base Alignment enumerator
     """
 
     LEFT = 1
@@ -26,20 +30,38 @@ class Alignment(Enum):
     JUSTIFY = 32
 
 
-class VerticalAlignment(Enum):
+class VerticalAlignment(str, enum.Enum):
+    """
+    Vertical Alignment Enumerator
+    """
+
     TOP = Alignment.TOP
     CENTRE = Alignment.CENTRE
-    CENTER = Alignment.CENTRE
     BOTTOM = Alignment.BOTTOM
 
 
-class HorizontalAlignment(Enum):
+class HorizontalAlignment(str, enum.Enum):
+    """
+    Horizontal Alignment Enumerator
+
+      Create Example:
+        align = HorizontalAlignment.LEFT
+
+      Check by:
+        if align.value == Alignment.LEFT
+        ...
+    """
+
     LEFT = Alignment.LEFT
     CENTRE = Alignment.CENTRE
-    CENTER = Alignment.CENTRE
     RIGHT = Alignment.RIGHT
 
 
-@_extend_enum(HorizontalAlignment)
-class TextAlignment(Enum):
+@extend_enum(HorizontalAlignment)
+class TextAlignment(str, enum.Enum):
+    """
+    Extended Horizontal Alignment Enumerator
+    Also Contains JUSTIFY for Text alignment
+    """
+
     JUSTIFY = Alignment.JUSTIFY

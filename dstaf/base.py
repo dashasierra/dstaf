@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import concurrent
 import inspect
+import json
 import logging
 import time
 import traceback
@@ -122,7 +123,7 @@ class ApplicationServer:
                 f"remove_application expected Future, got {
                     type(thread)}"
             )
-        logger.debug("Sending running=False to Application at 0x%s", id(thread))
+        logger.debug("Sending stop to Application at 0x%s", id(thread))
         start = time.time()
         logger.debug(f"Waiting for 0x{id(thread)} to terminate...")
         while thread.running():
@@ -242,8 +243,22 @@ class AppMeta:
         for key, value in kwargs.items():
             self.__setattr_function__(key=key, value=value)
 
+    def dict(self):
+        dictionary = {}
+        for key, value in self.__dict__.items():
+            if not key.startswith("_"):
+                dictionary[key] = value
+        return dictionary
+
+    def json(self, **kwargs):
+        return json.dumps(self.dict(), **kwargs)
+
     def __repr__(self):
-        return str(self.__dict__.items())
+        dictionary = {}
+        for key, value in self.__dict__.items():
+            if not key.startswith("_"):
+                dictionary[key] = value
+        return str(dictionary)
 
 
 class Application(ABC):
