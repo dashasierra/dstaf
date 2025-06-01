@@ -1,6 +1,6 @@
+import os
 from abc import ABC, abstractmethod
 from enum import Enum
-import os
 
 
 class Event(ABC):
