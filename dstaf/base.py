@@ -122,19 +122,21 @@ class ApplicationServer:
                 f"remove_application expected Future, got {
                     type(thread)}"
             )
-        logger.debug(
-            "Sending running=False to Application at 0x%s", id(thread)
-        )
+        logger.debug("Sending running=False to Application at 0x%s", id(thread))
         start = time.time()
         logger.debug(f"Waiting for 0x{id(thread)} to terminate...")
         while thread.running():
             self.applications[thread].runtime.running = False
-            if time.time()-start >= 3.0:
-                logger.warning(f"Application 0x{id(thread)} is not responding to termination signal")
+            if time.time() - start >= 3.0:
+                logger.warning(
+                    f"Application 0x{id(thread)} is not responding to termination signal"
+                )
                 logger.info(f"Attempting forceful termination for 0x{id(thread)}")
                 exception = thread.exception(2)
                 if exception:
-                    logger.error(f"Application at 0x{id(thread)} threw exception: {exception}")
+                    logger.error(
+                        f"Application at 0x{id(thread)} threw exception: {exception}"
+                    )
         logger.info(
             "Application 0x%s (%s) Terminated",
             id(thread),
@@ -152,17 +154,21 @@ class ApplicationServer:
             logger.info("Terminating Application at 0x%s", id(application_thread))
             self.remove_application(application_thread)
 
-    def application_check(self,
-                         thread: Union[concurrent.futures._base.Future, None] = None
-                         ) -> tuple:
+    def application_check(
+        self, thread: Union[concurrent.futures._base.Future, None] = None
+    ) -> tuple:
         not_alive = []
         if not thread:
             for key in self.applications.keys():
                 if not key.running():
                     error = key.exception()
                     if error:
-                        logger.error(f"Application at 0x{id(key)} has thrown unhandled error")
-                        tb = traceback.format_exception(type(error), error, error.__traceback__)
+                        logger.error(
+                            f"Application at 0x{id(key)} has thrown unhandled error"
+                        )
+                        tb = traceback.format_exception(
+                            type(error), error, error.__traceback__
+                        )
                         for line in tb:
                             line = line.strip("\r")
                             if line.count("\n") == 0:
@@ -172,7 +178,9 @@ class ApplicationServer:
                             for line_detail in line:
                                 logger.error(f"0x{id(key)}: {line_detail}")
                     else:
-                        logger.warning(f"Application at 0x{id(key)} has stopped running. Terminating")
+                        logger.warning(
+                            f"Application at 0x{id(key)} has stopped running. Terminating"
+                        )
                     not_alive.append(key)
             return tuple(not_alive)
         return () if thread.running() else (thread,)
@@ -206,12 +214,14 @@ class AppMeta:
     on data types during manipulation.
     """
 
-    def __setattr_function__(self, key:str, value:any):
+    def __setattr_function__(self, key: str, value: any):
         if key not in self.__dict__.keys():
             message = f"The attribute '{key}' does not exist in AppMeta"
             raise NameError(message)
         if not isinstance(value, type(self.__dict__[key])):
-            raise TypeError(f"Type mismatch. Expected type {self.__dict__[key]}, got {type(value)}")
+            raise TypeError(
+                f"Type mismatch. Expected type {self.__dict__[key]}, got {type(value)}"
+            )
         self.__dict__[key] = value
 
     def __init__(self, **kwargs):
@@ -221,31 +231,33 @@ class AppMeta:
 
         # Default Configuration
         self.__dict__ = {
-            'maximised' : False,                    # Is Application Maximised
-            'cascade' : False,                      # Should application Cascade
-            'align' : HorizontalAlignment.CENTRE,   # Horizontal Alignment to Container
-            'valign' : VerticalAlignment.CENTRE,    # Vertical Alignment to Container
-            'dimensions' : (40, 10),                # Width, Height as a tuple.
+            "maximised": False,  # Is Application Maximised
+            "cascade": False,  # Should application Cascade
+            "align": HorizontalAlignment.CENTRE,  # Horizontal Alignment to Container
+            "valign": VerticalAlignment.CENTRE,  # Vertical Alignment to Container
+            "dimensions": (40, 10),  # Width, Height as a tuple.
         }
         self.__setattr__ = self.__setattr_function__
 
         for key, value in kwargs.items():
-            self.__setattr_function__(key = key, value = value)
+            self.__setattr_function__(key=key, value=value)
 
     def __repr__(self):
         return str(self.__dict__.items())
+
 
 class Application(ABC):
 
     def __repr__(self):
         return f"{self.__class__.__name__} at 0x{id(self)}"
 
-    def __init__(self,
-                 name,
-                 app_id:
-                 UUID = uuid4(),
-                 app_meta: AppMeta = AppMeta(),
-                 server: Union[ApplicationServer, None] = None):
+    def __init__(
+        self,
+        name,
+        app_id: UUID = uuid4(),
+        app_meta: AppMeta = AppMeta(),
+        server: Union[ApplicationServer, None] = None,
+    ):
         """
         Application Class.
 
@@ -264,7 +276,9 @@ class Application(ABC):
         if not isinstance(app_id, UUID):
             raise TypeError(f"{self.__class__.__name__}(app_id) must be of type UUID")
         if not isinstance(app_meta, AppMeta):
-            raise TypeError(f"{self.__class__.__name__}(startup) must be of type AppMeta")
+            raise TypeError(
+                f"{self.__class__.__name__}(startup) must be of type AppMeta"
+            )
         # Set Instance Variables
         self.app_name = name
         self.app_id = app_id

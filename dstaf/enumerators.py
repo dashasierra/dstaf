@@ -9,6 +9,7 @@ def _extend_enum(inherited_enum):
         for item in added_enum:
             joined[item.name] = item.value
         return Enum(added_enum.__name__, joined)
+
     return wrapper
 
 
@@ -16,6 +17,7 @@ class Alignment(Enum):
     """
     Alignment enumerator
     """
+
     LEFT = 1
     CENTRE = 2
     CENTER = 2
