@@ -13,14 +13,14 @@ jobs:
   check-title:
     name: Check PR for Version Tag
     runs-on: ubuntu-latest
-    if: github.event_name != 'push'
+    if: github.event_name != 'push' && github.ref == 'refs/heads/master'
     steps:
       - name: Validate Pull Request Title
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
-          if [[ ! "$PR_TITLE" =~ ^#(major|minor|patch|none) ]]; then
-            echo "Error: Pull request title must start with #major, #minor, #patch, or #none."
+          if [[ ! "$PR_TITLE" =~ ^(?i)(major|minor|patch|none) ]]; then
+            echo "Error: Pull request title must start with 'Major', 'Minor', 'Patch', or 'None'."
             exit 1
           fi
 
@@ -49,7 +49,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    if: github.event_name == 'push' &&  github.ref == 'refs/heads/master'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
 
     steps:
     - name: Checkout
@@ -63,6 +63,10 @@ jobs:
         WITH_V: false
         DRY_RUN: true
         DEFAULT_BUMP: patch
+        MAJOR_STRING_TOKEN: Major
+        MINOR_STRING_TOKEN: Minor
+        PATCH_STRING_TOKEN: Patch
+        NONE_STRING_TOKEN: None
 
     - name: Update Version Strings
       env:
