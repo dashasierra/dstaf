@@ -24,6 +24,18 @@ jobs:
             exit 1
           fi
 
+  analyze:
+    name: Perform Bandit Code Analysis
+    runs-on: ubuntu-latest
+    if: github.event_name != 'push'
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+    steps:
+      - name: Perform Bandit Analysis
+        uses: PyCQA/bandit-action@v1
+
   release:
     name: Create New Release
     runs-on: ubuntu-latest
