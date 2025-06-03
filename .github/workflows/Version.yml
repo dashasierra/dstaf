@@ -25,7 +25,7 @@ jobs:
           fi
 
   analyze:
-    name: Perform Bandit Code Analysis
+    name: Code Analysis
     runs-on: ubuntu-latest
     if: github.event_name != 'push'
     permissions:
@@ -33,8 +33,16 @@ jobs:
       actions: read
       contents: read
     steps:
-      - name: Perform Bandit Analysis
-        uses: PyCQA/bandit-action@v1
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Install Bandit
+      run: |
+        pip install --upgrade bandit
+
+    - name: Scan Code
+      run: |
+        bandit dstaf -r -v -n 3 --severity-level=all
 
   release:
     name: Create New Release
