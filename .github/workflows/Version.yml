@@ -10,12 +10,47 @@ on:
 
 jobs:
 
+  check-title:
+    name: Check PR for Version Tag
+    runs-on: ubuntu-latest
+    if: github.event_name != 'push'
+    steps:
+      - name: Validate Pull Request Title
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          if [[ ! "$PR_TITLE" =~ ^(Major|Minor|Patch|None) ]]; then
+            echo "Error: Pull request title must start with 'Major', 'Minor', 'Patch', or 'None'."
+            echo "     - '$PR_TITLE'"
+            exit 1
+          fi
+
+  analyze:
+    name: Code Analysis
+    runs-on: ubuntu-latest
+    if: github.event_name != 'push'
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Install Bandit
+      run: |
+        pip install --upgrade bandit
+
+    - name: Scan Code
+      run: |
+        bandit dstaf -r -v -n 3 --severity-level=all
+
   release:
     name: Create New Release
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    if: github.event_name == 'push' &&  github.ref == 'refs/heads/master'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
 
     steps:
     - name: Checkout
@@ -29,6 +64,10 @@ jobs:
         WITH_V: false
         DRY_RUN: true
         DEFAULT_BUMP: patch
+        MAJOR_STRING_TOKEN: Major
+        MINOR_STRING_TOKEN: Minor
+        PATCH_STRING_TOKEN: Patch
+        NONE_STRING_TOKEN: None
 
     - name: Update Version Strings
       env:
@@ -77,17 +116,3 @@ jobs:
           --repo="${{ github.repository }}" \
           --title="DStaf ${{ steps.bump-tag.outputs.new_tag }}" \
           --generate-notes
-
-  check-title:
-    name: Version Check
-    runs-on: ubuntu-latest
-    if: github.event_name != 'push'
-    steps:
-      - name: Validate Pull Request Title
-        env:
-          PR_TITLE: ${{ github.event.pull_request.title }}
-        run: |
-          if [[ ! "$PR_TITLE" =~ ^#(major|minor|patch|none) ]]; then
-            echo "Error: Pull request title must start with #major, #minor, #patch, or #none."
-            exit 1
-          fi
