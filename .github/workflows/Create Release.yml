@@ -46,7 +46,7 @@ jobs:
         PR_TITLE: ${{ github.event.pull_request.head.ref }}
       run: |
         echo "PR TITLE: '${{ env.PR_TITLE }}'"
-        if [[ "${{ env.PR_TITLE }}" =~ ^Auto ]]; then
+        if [[ "${{ env.PR_TITLE }}" =~ ^gh-actions ]]; then
           echo Do not run automated PRs. Skip section.
           exit 0
         fi
@@ -74,7 +74,7 @@ jobs:
         PR_TITLE: ${{ github.event.pull_request.title }}
       run: |
         echo "PR TITLE: '${{ env.PR_TITLE }}'"
-        if [[ "${{ env.PR_TITLE }}" =~ ^Auto ]]; then
+        if [[ "${{ env.PR_TITLE }}" =~ ^gh-actions ]]; then
           echo Do not run automated PRs. Skip section.
           exit 0
         fi
@@ -90,7 +90,7 @@ jobs:
         PR_TITLE: ${{ github.event.pull_request.title }}
       run: |
         echo "PR TITLE: '${{ env.PR_TITLE }}'"
-        if [[ "${{ env.PR_TITLE }}" =~ ^Auto ]]; then
+        if [[ "${{ env.PR_TITLE }}" =~ ^gh-actions ]]; then
           echo Do not run automated PRs. Skip section.
           exit 0
         fi
@@ -112,7 +112,7 @@ jobs:
         PR_TITLE: ${{ github.event.pull_request.title }}
       run: |
         echo "PR TITLE: '${{ env.PR_TITLE }}'"
-        if [[ "${{ env.PR_TITLE }}" =~ ^Auto ]]; then
+        if [[ "${{ env.PR_TITLE }}" =~ ^gh-actions ]]; then
           echo Do not run automated PRs. Skip section.
           exit 0
         fi
@@ -127,7 +127,7 @@ jobs:
         PR_TITLE: ${{ github.event.pull_request.title }}
       run: |
         echo "PR TITLE: '${{ env.PR_TITLE }}'"
-        if [[ "${{ env.PR_TITLE }}" =~ ^Auto ]]; then
+        if [[ "${{ env.PR_TITLE }}" =~ ^gh-actions ]]; then
           echo Do not run automated PRs. Skip section.
           exit 0
         fi
