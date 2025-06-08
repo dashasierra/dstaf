@@ -60,7 +60,7 @@ jobs:
       id: bump-tag
       uses: anothrNick/github-tag-action@1.73.0
       env:
-        GITHUB_TOKEN: ${{ secrets.DSS_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         WITH_V: false
         DRY_RUN: true
         DEFAULT_BUMP: patch
@@ -82,6 +82,7 @@ jobs:
       run: |
         git config user.name "GitHub Actions"
         git config user.email "actions@github.com"
+        git remote set-url origin https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/your-org/your-repo.git
         sed -i "s/^version = .*/version = \"${NEW_TAG}\"/" pyproject.toml
         sed -i "s/^__version__ = .*/__version__ = \"${NEW_TAG}\"/" dstaf/__init__.py
         git add pyproject.toml dstaf/__init__.py
@@ -101,7 +102,7 @@ jobs:
         echo "vpatch=v$(echo ${{ steps.bump-tag.outputs.new_tag }} | cut -d. -f1,2,3)" >> $GITHUB_ENV
     - name: Create or update tags
       env:
-        GITHUB_TOKEN: ${{ secrets.DSS_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
       run: |
         git tag -f "$vmajor"
         git push -f origin "$vmajor"
@@ -115,7 +116,7 @@ jobs:
 
     - name: Create Release
       env:
-        GH_TOKEN: ${{ secrets.DSS_TOKEN }}
+        GH_TOKEN: ${{ secrets.PAT_TOKEN }}
       run: |
         gh release create "v${{ steps.bump-tag.outputs.new_tag }}" \
           --repo="${{ github.repository }}" \
