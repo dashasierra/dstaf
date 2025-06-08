@@ -1,60 +1,25 @@
-name: CI/CD
+name: Create Release
 
 on:
-  push:
-    branches:
-      - master
-    tags:
-      - '*'
   pull_request:
+    types:
+      - closed  # Only run when a PR is merged
 
 jobs:
-
-  check-title:
-    name: Check PR for Version Tag
-    runs-on: ubuntu-latest
-    if: github.event_name != 'push'
-    steps:
-      - name: Validate Pull Request Title
-        env:
-          PR_TITLE: ${{ github.event.pull_request.title }}
-        run: |
-          if [[ ! "$PR_TITLE" =~ ^(Major|Minor|Patch|Doc|Auto) ]]; then
-            echo "Error: Pull request title must start with 'Major', 'Minor', 'Patch', or 'Doc'."
-            echo "     - '$PR_TITLE'"
-            exit 1
-          fi
-
-  analyze:
-    name: Code Analysis
-    runs-on: ubuntu-latest
-    if: github.event_name != 'push'
-    permissions:
-      security-events: write
-      actions: read
-      contents: read
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-
-    - name: Install Code Analysis Requirements
-      run: |
-        pip install --upgrade bandit pylint 
-
-    - name: Vulnerability Scan
-      run: |
-        bandit dstaf -r -v -n 3 --severity-level=all
-
-    - name: Lint Scan
-      run: |
-        pylint dstaf/*py
-
   release:
     name: Create New Release
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    if: >
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.base.ref == 'master' &&
+      !(
+        startsWith(github.event.pull_request.head.ref, 'Major') ||
+        startsWith(github.event.pull_request.head.ref, 'Minor') ||
+        startsWith(github.event.pull_request.head.ref, 'Patch') ||
+        startsWith(github.event.pull_request.head.ref, 'Doc')
+      )
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -78,7 +43,7 @@ jobs:
       env:
         NEW_TAG: ${{ steps.bump-tag.outputs.new_tag }}
         GH_TOKEN: ${{ secrets.PAT_TOKEN }}
-        PR_TITLE: ${{ github.head_ref || github.ref_name }}
+        PR_TITLE: ${{ github.event.pull_request.head.ref }}
       run: |
         echo "PR TITLE: '${{ env.PR_TITLE }}'"
         if [[ "${{ env.PR_TITLE }}" =~ ^Auto ]]; then
