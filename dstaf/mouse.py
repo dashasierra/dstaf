@@ -1,3 +1,7 @@
+"""
+Mouse Actions
+"""
+
 import platform
 from abc import ABC
 from enum import Enum, EnumType
@@ -6,19 +10,31 @@ from enum import Enum, EnumType
 class _MouseEvent(ABC):
 
     class Click(Enum):
-        none = -9
+        """
+        Default Click Enumerator. If this is kept, the
+        inheriting event will fail.
+        """
+
+        NONE = -9
 
     class ClickType(Enum):
-        none = 0.0
-        single = 1.0
-        double = 2.0
-        triple = 4.0
-        hold = 0.5
-        release = 0.25
+        """
+        Type of mouse click
+        """
+
+        NONE = 0.0
+        SINGLE = 1.0
+        DOUBLE = 2.0
+        TRIPLE = 4.0
+        HOLD = 0.5
+        RELEASE = 0.25
 
     def get_mouse_button(
         self, key_value: int, ignore_errors: bool = None
     ) -> [ClickType, Click]:
+        """
+        Convert key value to a standardised click type
+        """
         if not isinstance(ignore_errors, bool):
             ignore_errors = self._ignore_errors
         for click_type in self.ClickType:
@@ -28,26 +44,28 @@ class _MouseEvent(ABC):
                 raise ValueError(
                     f"The mouse button value '{key_value}' is not a known mouse button type"
                 )
-            return self.ClickType.none, self.Click.none
+            return self.ClickType.NONE, self.Click.NONE
+
+    def get_types(self) -> EnumType:
+        """
+        Return the Click Enumerator for this class
+        """
+        return self.Click
 
     def __init_subclass__(cls, **kwargs):
         if not hasattr(cls, "Click"):
-            raise NotImplementedError(
-                f"Click(Enum) not specified in {
-                    cls.__name__}"
-            )
+            message = f"Click(Enum) not specified in {cls.__name__}"
+            raise NotImplementedError(message)
         if not isinstance(cls.Click, EnumType):
             # The Click class should be an enumerator
             raise TypeError(f"{cls.__name__}.Click is not of type Enum")
-        if "none" not in cls.Click.__dict__.keys():
+        if "none" not in cls.Click.__dict__:
             raise NameError(f"{cls.__name__}.Click.none must exist")
-        if cls.Click.none.value == -9:
+        if cls.Click.NONE.value == -9:
             # This means the default Click class is present, so:
-            raise NotImplementedError(
-                f"Click(Enum) not specified in {
-                    cls.__name__}"
-            )
-        if "ignore_errors" in kwargs.keys():
+            message = f"Click(Enum) not specified in {cls.__name__}"
+            raise NotImplementedError(message)
+        if "ignore_errors" in kwargs:
             cls._ignore_errors = kwargs["ignore_errors"]
         else:
             cls._ignore_errors = False
@@ -60,12 +78,12 @@ class _WindowsMouseEvent(_MouseEvent):
         Mouse Click Integer Values for Windows Terminals
         """
 
-        none = 0
-        left = 1
-        right = 2
-        middle = 4
-        scroll_up = 7864320
-        scroll_down = 4287102976
+        NONE = 0
+        LEFT = 1
+        RIGHT = 2
+        MIDDLE = 4
+        SCROLL_UP = 7864320
+        SCROLL_DOWN = 4287102976
 
 
 class _CursesMouseEvent(_MouseEvent):
@@ -75,12 +93,12 @@ class _CursesMouseEvent(_MouseEvent):
         Mouse Click Integer Values for Curses
         """
 
-        none = 0
-        left = 4
-        right = 4096
-        middle = 128
-        scroll_up = 65536
-        scroll_down = 2097152
+        NONE = 0
+        LEFT = 4
+        RIGHT = 4096
+        MIDDLE = 128
+        SCROLL_UP = 65536
+        SCROLL_DOWN = 2097152
 
 
 if platform.system().lower() == "Windows":
