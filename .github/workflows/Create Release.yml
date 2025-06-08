@@ -71,11 +71,11 @@ jobs:
       id: create-pr
       env:
         GH_TOKEN: ${{ secrets.PAT_TOKEN }}
-        PR_TITLE: ${{ steps.Create_Branch.env.PR_TITLE }}
+        PR_TITLE: ${{ github.event.pull_request.title }}
         NEW_TAG: ${{ steps.bump-tag.outputs.new_tag }}
       run: |
         echo "PR TITLE: '${{ env.PR_TITLE }}'"
-        if [[ "${{ env.PR_TITLE }}" =~ ^gh-actions ]]; then
+        if [[ "${{ env.PR_TITLE }}" =~ ^Auto ]]; then
           echo Do not run automated PRs. Skip section.
           exit 0
         fi
@@ -88,10 +88,10 @@ jobs:
     - name: Merge the pull request
       env:
         GH_TOKEN: ${{ secrets.PAT_TOKEN }}
-        PR_TITLE: ${{ steps.Create_Branch.env.PR_TITLE }}
+        PR_TITLE: ${{ github.event.pull_request.title }}
       run: |
         echo "PR TITLE: '${{ env.PR_TITLE }}'"
-        if [[ "${{ env.PR_TITLE }}" =~ ^gh-actions ]]; then
+        if [[ "${{ env.PR_TITLE }}" =~ ^Auth ]]; then
           echo Do not run automated PRs. Skip section.
           exit 0
         fi
@@ -110,10 +110,10 @@ jobs:
     - name: Create or update tags
       env:
         GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
-        PR_TITLE: ${{ steps.Create_Branch.env.PR_TITLE }}
+        PR_TITLE: ${{ github.event.pull_request.title }}
       run: |
         echo "PR TITLE: '${{ env.PR_TITLE }}'"
-        if [[ "${{ env.PR_TITLE }}" =~ ^gh-actions ]]; then
+        if [[ "${{ env.PR_TITLE }}" =~ ^Auto ]]; then
           echo Do not run automated PRs. Skip section.
           exit 0
         fi
@@ -125,10 +125,10 @@ jobs:
     - name: Create Release
       env:
         GH_TOKEN: ${{ secrets.PAT_TOKEN }}
-        PR_TITLE: ${{ steps.Create_Branch.env.PR_TITLE }}
+        PR_TITLE: ${{ github.event.pull_request.title }}
       run: |
         echo "PR TITLE: '${{ env.PR_TITLE }}'"
-        if [[ "${{ env.PR_TITLE }}" =~ ^gh-actions ]]; then
+        if [[ "${{ env.PR_TITLE }}" =~ ^Auto ]]; then
           echo Do not run automated PRs. Skip section.
           exit 0
         fi
