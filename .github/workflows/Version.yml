@@ -82,7 +82,7 @@ jobs:
       run: |
         git config user.name "GitHub Actions"
         git config user.email "actions@github.com"
-        git remote set-url origin https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/your-org/your-repo.git
+        git remote set-url origin https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/dashasierra/dstaf.git
         sed -i "s/^version = .*/version = \"${NEW_TAG}\"/" pyproject.toml
         sed -i "s/^__version__ = .*/__version__ = \"${NEW_TAG}\"/" dstaf/__init__.py
         git add pyproject.toml dstaf/__init__.py
