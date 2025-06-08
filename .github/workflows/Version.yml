@@ -100,8 +100,6 @@ jobs:
         git push -f origin "$vmajor"
         git tag -f "$vminor"
         git push -f origin "$vminor"
-        git tag -f "$vpatch"
-        git push -f origin "$vpatch"
 
     - name: Checkout for Release
       uses: actions/checkout@v4
@@ -112,7 +110,7 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.DSS_TOKEN }}
       run: |
-        gh release create "${{ steps.bump-tag.outputs.new_tag }}" \
+        gh release create "v${{ steps.bump-tag.outputs.new_tag }}" \
           --repo="${{ github.repository }}" \
           --title="DStaf ${{ steps.bump-tag.outputs.new_tag }}" \
           --generate-notes
