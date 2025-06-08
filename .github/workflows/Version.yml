@@ -101,12 +101,6 @@ jobs:
         PR_NUMBER=$(gh pr list --state open --base master --head auto-version-update --json number --jq '.[0].number')
         echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
 
-    - name: Approve the pull request
-      env:
-        GH_TOKEN: ${{ secrets.PAT_TOKEN }}
-      run: |
-        gh pr review ${{ env.PR_NUMBER }} --approve
-
     - name: Merge the pull request
       env:
         GH_TOKEN: ${{ secrets.PAT_TOKEN }}
