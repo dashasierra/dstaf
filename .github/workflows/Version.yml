@@ -150,11 +150,6 @@ jobs:
         git tag -f "$vminor"
         git push -f origin "$vminor"
 
-    - name: Checkout for Release
-      uses: actions/checkout@v4
-      with:
-        ref: master
-
     - name: Create Release
       env:
         GH_TOKEN: ${{ secrets.PAT_TOKEN }}
