@@ -97,18 +97,18 @@ jobs:
         gh pr create --title "Auto Version Bump to ${NEW_TAG}" \
                      --body "Automated version update triggered by GitHub Actions" \
                      --base master --head auto-version-update
-        
+
     - name: Review the pull request
       env:
         GH_TOKEN: ${{ secrets.PAT_TOKEN }}
       run: |
-        gh pr review --approve --repo dashasierra/dstaf
+        gh pr review --approve --repo dashasierra/dstaf/auto-version-update
 
     - name: Merge the pull request
       env:
         GH_TOKEN: ${{ secrets.PAT_TOKEN }}
       run: |
-        gh pr merge --merge --repo dashasierra/dstaf
+        gh pr merge --merge --repo dashasierra/dstaf/auto-version-update
 
     - name: Checkout for Tag
       uses: actions/checkout@v4
