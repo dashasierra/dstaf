@@ -37,13 +37,17 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Install Bandit
+    - name: Install Code Analysis Requirements
       run: |
-        pip install --upgrade bandit
+        pip install --upgrade bandit pylint 
 
-    - name: Scan Code
+    - name: Vulnerability Scan
       run: |
         bandit dstaf -r -v -n 3 --severity-level=all
+
+    - name: Lint Scan
+      run: |
+        pylint dstaf/*py
 
   release:
     name: Create New Release
@@ -61,7 +65,7 @@ jobs:
       uses: anothrNick/github-tag-action@1.73.0
       env:
         GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
-        WITH_V: false
+        WITH_V: true
         DRY_RUN: true
         DEFAULT_BUMP: patch
         MAJOR_STRING_TOKEN: Major
@@ -75,8 +79,10 @@ jobs:
       env:
         NEW_TAG: ${{ steps.bump-tag.outputs.new_tag }}
       run: |
+        TAG_WITHOUT_V="${NEW_TAG:1}"
         BRANCH_NAME="vupdate-$(uuidgen)"
         echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+        echo "TAG_WITHOUT_V=$TAG_WITHOUT_V" >> $GITHUB_ENV
         git config user.name "GitHub Actions"
         git config user.email "actions@github.com"
         git remote set-url origin https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/dashasierra/dstaf.git
@@ -112,8 +118,8 @@ jobs:
     - name: Extract major, minor, patch v-versions
       id: major-version
       run: |
-        echo "vmajor=v$(echo ${{ steps.bump-tag.outputs.new_tag }} | cut -d. -f1)" >> $GITHUB_ENV
-        echo "vminor=v$(echo ${{ steps.bump-tag.outputs.new_tag }} | cut -d. -f1,2)" >> $GITHUB_ENV
+        echo "vmajor=$(echo ${{ steps.bump-tag.outputs.new_tag }} | cut -d. -f1)" >> $GITHUB_ENV
+        echo "vminor=$(echo ${{ steps.bump-tag.outputs.new_tag }} | cut -d. -f1,2)" >> $GITHUB_ENV
     - name: Create or update tags
       env:
         GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
@@ -132,7 +138,7 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.PAT_TOKEN }}
       run: |
-        gh release create "v${{ steps.bump-tag.outputs.new_tag }}" \
+        gh release create "${{ steps.bump-tag.outputs.new_tag }}" \
           --repo="${{ github.repository }}" \
-          --title="DStaf ${{ steps.bump-tag.outputs.new_tag }}" \
+          --title="DStaf ${{ env.TAG_WITHOUT_V }}" \
           --generate-notes
