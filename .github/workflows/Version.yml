@@ -19,8 +19,8 @@ jobs:
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
-          if [[ ! "$PR_TITLE" =~ ^(Major|Minor|Patch|None|Auto) ]]; then
-            echo "Error: Pull request title must start with 'Major', 'Minor', 'Patch', or 'None'."
+          if [[ ! "$PR_TITLE" =~ ^(Major|Minor|Patch|Doc|Auto) ]]; then
+            echo "Error: Pull request title must start with 'Major', 'Minor', 'Patch', or 'Doc'."
             echo "     - '$PR_TITLE'"
             exit 1
           fi
@@ -55,7 +55,6 @@ jobs:
     permissions:
       contents: write
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -71,7 +70,7 @@ jobs:
         MAJOR_STRING_TOKEN: Major
         MINOR_STRING_TOKEN: Minor
         PATCH_STRING_TOKEN: Patch
-        NONE_STRING_TOKEN: None
+        NONE_STRING_TOKEN: Doc
 
     - name: Update Version Strings
       id:
@@ -81,6 +80,11 @@ jobs:
         GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         PR_TITLE: ${{ github.event.pull_request.title }}
       run: |
+        echo "PR TITLE: '${PR_TITLE}'"
+        if [[ "${PR_TITLE}" =~ ^Auto ]]; then
+          echo Do not run automated PRs. Skip section.
+          exit 0
+        fi
         BRANCH_NAME="gh-actions-$(uuidgen)"
         echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
         TAG_WITHOUT_V="${NEW_TAG:1}"
@@ -92,7 +96,7 @@ jobs:
         sed -i "s/^version = .*/version = \"${TAG_WITHOUT_V}\"/" pyproject.toml
         sed -i "s/^__version__ = .*/__version__ = \"${TAG_WITHOUT_V}\"/" dstaf/__init__.py
         git add pyproject.toml dstaf/__init__.py
-        git commit -m "Bump Version to ${TAG_WITHOUT_V}"
+        git commit --allow-empty -m "Bump Version to ${TAG_WITHOUT_V}"
         git push origin $BRANCH_NAME
 
     - name: Create a pull request
@@ -101,6 +105,11 @@ jobs:
         GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         PR_TITLE: ${{ github.event.pull_request.title }}
       run: |
+        echo "PR TITLE: '${PR_TITLE}'"
+        if [[ "${PR_TITLE}" =~ ^Auto ]]; then
+          echo Do not run automated PRs. Skip section.
+          exit 0
+        fi
         gh pr create --title "Auto Version Bump to ${NEW_TAG}" \
                      --body "Automated version update triggered by GitHub Actions" \
                      --base master --head ${{ env.BRANCH_NAME }}
@@ -112,6 +121,11 @@ jobs:
         GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         PR_TITLE: ${{ github.event.pull_request.title }}
       run: |
+        echo "PR TITLE: '${PR_TITLE}'"
+        if [[ "${PR_TITLE}" =~ ^Auto ]]; then
+          echo Do not run automated PRs. Skip section.
+          exit 0
+        fi
         gh pr merge ${{ env.PR_NUMBER }} --merge --admin
 
     - name: Checkout for Tag
@@ -129,6 +143,11 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         PR_TITLE: ${{ github.event.pull_request.title }}
       run: |
+        echo "PR TITLE: '${PR_TITLE}'"
+        if [[ "${PR_TITLE}" =~ ^Auto ]]; then
+          echo Do not run automated PRs. Skip section.
+          exit 0
+        fi
         git tag -f "$vmajor"
         git push -f origin "$vmajor"
         git tag -f "$vminor"
@@ -139,6 +158,11 @@ jobs:
         GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         PR_TITLE: ${{ github.event.pull_request.title }}
       run: |
+        echo "PR TITLE: '${PR_TITLE}'"
+        if [[ "${PR_TITLE}" =~ ^Auto ]]; then
+          echo Do not run automated PRs. Skip section.
+          exit 0
+        fi
         gh release create "${{ steps.bump-tag.outputs.new_tag }}" \
           --repo="${{ github.repository }}" \
           --title="DStaf ${{ env.TAG_WITHOUT_V }}" \
