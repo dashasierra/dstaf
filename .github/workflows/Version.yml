@@ -91,6 +91,7 @@ jobs:
         git push origin auto-version-update
 
     - name: Create a pull request
+      id: pr_number
       env:
         GH_TOKEN: ${{ secrets.PAT_TOKEN }}
       run: |
@@ -104,13 +105,13 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.PAT_TOKEN }}
       run: |
-        gh pr review $PR_NUMBER --approve
+        gh pr review ${{ env.PR_NUMBER }} --approve
 
     - name: Merge the pull request
       env:
         GH_TOKEN: ${{ secrets.PAT_TOKEN }}
       run: |
-        gh pr merge $PR_NUMBER --merge
+        gh pr merge ${{ env.PR_NUMBER }} --merge
 
     - name: Checkout for Tag
       uses: actions/checkout@v4
