@@ -71,7 +71,8 @@ jobs:
       id: create-pr
       env:
         GH_TOKEN: ${{ secrets.PAT_TOKEN }}
-        PR_TITLE: ${{ github.event.pull_request.title }}
+        PR_TITLE: ${{ steps.Create_Branch.env.PR_TITLE }}
+        NEW_TAG: ${{ steps.bump-tag.outputs.new_tag }}
       run: |
         echo "PR TITLE: '${{ env.PR_TITLE }}'"
         if [[ "${{ env.PR_TITLE }}" =~ ^gh-actions ]]; then
@@ -87,7 +88,7 @@ jobs:
     - name: Merge the pull request
       env:
         GH_TOKEN: ${{ secrets.PAT_TOKEN }}
-        PR_TITLE: ${{ github.event.pull_request.title }}
+        PR_TITLE: ${{ steps.Create_Branch.env.PR_TITLE }}
       run: |
         echo "PR TITLE: '${{ env.PR_TITLE }}'"
         if [[ "${{ env.PR_TITLE }}" =~ ^gh-actions ]]; then
@@ -109,7 +110,7 @@ jobs:
     - name: Create or update tags
       env:
         GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
-        PR_TITLE: ${{ github.event.pull_request.title }}
+        PR_TITLE: ${{ steps.Create_Branch.env.PR_TITLE }}
       run: |
         echo "PR TITLE: '${{ env.PR_TITLE }}'"
         if [[ "${{ env.PR_TITLE }}" =~ ^gh-actions ]]; then
@@ -124,7 +125,7 @@ jobs:
     - name: Create Release
       env:
         GH_TOKEN: ${{ secrets.PAT_TOKEN }}
-        PR_TITLE: ${{ github.event.pull_request.title }}
+        PR_TITLE: ${{ steps.Create_Branch.env.PR_TITLE }}
       run: |
         echo "PR TITLE: '${{ env.PR_TITLE }}'"
         if [[ "${{ env.PR_TITLE }}" =~ ^gh-actions ]]; then
