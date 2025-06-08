@@ -19,7 +19,7 @@ jobs:
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
-          if [[ ! "$PR_TITLE" =~ ^(Major|Minor|Patch|None) ]]; then
+          if [[ ! "$PR_TITLE" =~ ^(Major|Minor|Patch|None|Auto) ]]; then
             echo "Error: Pull request title must start with 'Major', 'Minor', 'Patch', or 'None'."
             echo "     - '$PR_TITLE'"
             exit 1
