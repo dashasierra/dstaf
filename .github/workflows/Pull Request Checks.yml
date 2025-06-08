@@ -21,10 +21,16 @@ jobs:
       - name: Validate Pull Request Title
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
+          BRANCH_NAME: ${{ github.event.pull_request.head.ref }}
         run: |
-          if [[ ! "$PR_TITLE" =~ ^(Major|Minor|Patch|Doc) ]]; then
+          if [[ ! "$PR_TITLE" =~ ^(Major|Minor|Patch|Doc|Auto) ]]; then
             echo "Error: Pull request title must start with 'Major', 'Minor', 'Patch', or 'Doc'."
             echo "     - '$PR_TITLE'"
+            exit 1
+          fi
+          if [[ "$PR_TITLE" =~ ^Auto ]] && [[ ! "$BRANCH_NAME" =~ ^gh-actions ]]; then
+            echo "Automatic branches must only be created by GitHub Actions."
+            echo "Branch Name: '$BRANCH_NAME'"
             exit 1
           fi
 
