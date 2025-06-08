@@ -9,8 +9,8 @@
 <a href="#"><img src="https://img.shields.io/badge/macOS-000000?style=flat&logo=apple&logoColor=white" alt="macOS Compatible" /></a>
 </p>
 
-> **Warning**
-This software is not ready for development, testing, or production use.
+
+> ❌ **WARNING**:- This software is not ready for development, testing, or production use.
 
 Dasha Sierra Text Application Framework allows terminal based applications to be
 created in Python, creating an abstract set of rules that should enable end
