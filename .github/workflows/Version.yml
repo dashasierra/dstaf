@@ -95,7 +95,7 @@ jobs:
         git push origin $BRANCH_NAME
 
     - name: Create a pull request
-      id: pr_number
+      id: create-pr
       env:
         GH_TOKEN: ${{ secrets.PAT_TOKEN }}
       run: |
@@ -121,7 +121,6 @@ jobs:
       run: |
         echo "vmajor=v$(echo ${{ steps.bump-tag.outputs.new_tag }} | cut -d. -f1)" >> $GITHUB_ENV
         echo "vminor=v$(echo ${{ steps.bump-tag.outputs.new_tag }} | cut -d. -f1,2)" >> $GITHUB_ENV
-        echo "vpatch=v$(echo ${{ steps.bump-tag.outputs.new_tag }} | cut -d. -f1,2,3)" >> $GITHUB_ENV
     - name: Create or update tags
       env:
         GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
