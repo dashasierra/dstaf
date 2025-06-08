@@ -30,7 +30,12 @@ jobs:
           fi
           if [[ "$PR_TITLE" =~ ^Auto ]] && [[ ! "$BRANCH_NAME" =~ ^gh-actions ]]; then
             echo "Automatic branches must only be created by GitHub Actions."
-            echo "Branch Name: '$BRANCH_NAME'"
+            echo "  Branch Name: '$BRANCH_NAME'"
+            exit 1
+          fi
+          if [[ "$PR_TITLE" =~ ^(Major|Minor|Patch|Doc) ]] && [[ "$BRANCH_NAME" =~ ^gh-actions ]]; then
+            echo "Branches starting with gh-actions are only to be opened by Create Release action. Rename your branch."
+            echo "  Branch Name: '$BRANCH_NAME'"
             exit 1
           fi
 
