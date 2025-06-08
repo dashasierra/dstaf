@@ -78,7 +78,7 @@ jobs:
       env:
         NEW_TAG: ${{ steps.bump-tag.outputs.new_tag }}
         GH_TOKEN: ${{ secrets.PAT_TOKEN }}
-        PR_TITLE: ${{ github.event.pull_request.title }}
+        PR_TITLE: ${{ github.head_ref || github.ref_name }}
       run: |
         echo "PR TITLE: '${{ env.PR_TITLE }}'"
         if [[ "${{ env.PR_TITLE }}" =~ ^Auto ]]; then
@@ -96,7 +96,10 @@ jobs:
         sed -i "s/^version = .*/version = \"${TAG_WITHOUT_V}\"/" pyproject.toml
         sed -i "s/^__version__ = .*/__version__ = \"${TAG_WITHOUT_V}\"/" dstaf/__init__.py
         git add pyproject.toml dstaf/__init__.py
-        git commit --allow-empty -m "Bump Version to ${TAG_WITHOUT_V}"
+        # Hashed out to prevent infinite loop
+        # git commit --allow-empty -m "Bump Version to ${TAG_WITHOUT_V}"
+        # Below command should be removed once infinite loop is stopped
+        git commit -m "Bump Version to ${TAG_WITHOUT_V}"
         git push origin $BRANCH_NAME
 
     - name: Create a pull request
