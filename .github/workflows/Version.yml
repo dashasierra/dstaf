@@ -69,13 +69,6 @@ jobs:
         PATCH_STRING_TOKEN: Patch
         NONE_STRING_TOKEN: None
 
-    - name: Configure SSH
-      run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.DEPLOY_PK }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan github.com >> ~/.ssh/known_hosts
-
     - name: Update Version Strings
       id:
         Create_Branch
