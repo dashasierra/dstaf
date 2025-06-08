@@ -62,9 +62,9 @@ jobs:
         sed -i "s/^__version__ = .*/__version__ = \"${TAG_WITHOUT_V}\"/" dstaf/__init__.py
         git add pyproject.toml dstaf/__init__.py
         # Hashed out to prevent infinite loop
-        # git commit --allow-empty -m "Bump Version to ${TAG_WITHOUT_V}"
+        git commit --allow-empty -m "Bump Version to ${TAG_WITHOUT_V}"
         # Below command should be removed once infinite loop is stopped
-        git commit -m "Bump Version to ${TAG_WITHOUT_V}"
+        # git commit -m "Bump Version to ${TAG_WITHOUT_V}"
         git push origin $BRANCH_NAME
 
     - name: Create a pull request
