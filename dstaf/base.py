@@ -182,8 +182,7 @@ class ApplicationServer:
                     if error:
                         logger.error(
                             (
-                                f"Application at 0x{id(key)} "
-                                "has thrown unhandled error"
+                                f"0x{id(key)}: Unhandled Exception '{error}'"
                             )
                         )
                         tb = traceback.format_exception(
@@ -195,6 +194,8 @@ class ApplicationServer:
                                 line = [line]
                             else:
                                 line = line.split("\n")
+                                if line[len(line)-1] == "":
+                                    del line[-1]
                             for line_detail in line:
                                 logger.error(f"0x{id(key)}: {line_detail}")
                     else:
