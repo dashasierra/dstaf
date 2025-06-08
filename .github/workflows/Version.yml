@@ -90,6 +90,16 @@ jobs:
         git commit -m "Bump Version to ${NEW_TAG}"
         git push origin auto-version-update
 
+    - name: Create a pull request
+      run: |
+        gh pr create --title "Auto Version Bump to ${NEW_TAG}" \
+                     --body "Automated version update triggered by GitHub Actions" \
+                     --base master --head auto-version-update
+        gh pr review --approve --repo dashasierra/dstaf
+        gh pr merge --merge --repo dashasierra/dstaf
+      env:
+        GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+
     - name: Checkout for Tag
       uses: actions/checkout@v4
       with:
