@@ -105,7 +105,7 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.PAT_TOKEN }}
       run: |
-        gh pr merge ${{ env.PR_NUMBER }} --merge
+        gh pr merge ${{ env.PR_NUMBER }} --merge --admin
 
     - name: Checkout for Tag
       uses: actions/checkout@v4
