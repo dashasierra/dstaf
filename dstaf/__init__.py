@@ -4,4 +4,4 @@ DS Application Server
 
 from .base import Application, ApplicationServer
 
-__version__ = "0.0.13"
+__version__ = "0.0.14"
