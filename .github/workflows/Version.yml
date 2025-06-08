@@ -80,8 +80,8 @@ jobs:
         GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         PR_TITLE: ${{ github.event.pull_request.title }}
       run: |
-        echo "PR TITLE: '${PR_TITLE}'"
-        if [[ "${PR_TITLE}" =~ ^Auto ]]; then
+        echo "PR TITLE: '${{ env.PR_TITLE }}'"
+        if [[ "${{ env.PR_TITLE }}" =~ ^Auto ]]; then
           echo Do not run automated PRs. Skip section.
           exit 0
         fi
@@ -105,8 +105,8 @@ jobs:
         GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         PR_TITLE: ${{ github.event.pull_request.title }}
       run: |
-        echo "PR TITLE: '${PR_TITLE}'"
-        if [[ "${PR_TITLE}" =~ ^Auto ]]; then
+        echo "PR TITLE: '${{ env.PR_TITLE }}'"
+        if [[ "${{ env.PR_TITLE }}" =~ ^Auto ]]; then
           echo Do not run automated PRs. Skip section.
           exit 0
         fi
@@ -121,8 +121,8 @@ jobs:
         GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         PR_TITLE: ${{ github.event.pull_request.title }}
       run: |
-        echo "PR TITLE: '${PR_TITLE}'"
-        if [[ "${PR_TITLE}" =~ ^Auto ]]; then
+        echo "PR TITLE: '${{ env.PR_TITLE }}'"
+        if [[ "${{ env.PR_TITLE }}" =~ ^Auto ]]; then
           echo Do not run automated PRs. Skip section.
           exit 0
         fi
@@ -143,8 +143,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         PR_TITLE: ${{ github.event.pull_request.title }}
       run: |
-        echo "PR TITLE: '${PR_TITLE}'"
-        if [[ "${PR_TITLE}" =~ ^Auto ]]; then
+        echo "PR TITLE: '${{ env.PR_TITLE }}'"
+        if [[ "${{ env.PR_TITLE }}" =~ ^Auto ]]; then
           echo Do not run automated PRs. Skip section.
           exit 0
         fi
@@ -158,8 +158,8 @@ jobs:
         GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         PR_TITLE: ${{ github.event.pull_request.title }}
       run: |
-        echo "PR TITLE: '${PR_TITLE}'"
-        if [[ "${PR_TITLE}" =~ ^Auto ]]; then
+        echo "PR TITLE: '${{ env.PR_TITLE }}'"
+        if [[ "${{ env.PR_TITLE }}" =~ ^Auto ]]; then
           echo Do not run automated PRs. Skip section.
           exit 0
         fi
