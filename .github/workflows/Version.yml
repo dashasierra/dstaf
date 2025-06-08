@@ -87,12 +87,12 @@ jobs:
         git config user.name "GitHub Actions"
         git config user.email "actions@github.com"
         git remote set-url origin https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/dashasierra/dstaf.git
-        git checkout -b ${{ env.BRANCH_NAME }}
+        git checkout -b $BRANCH_NAME
         sed -i "s/^version = .*/version = \"${NEW_TAG}\"/" pyproject.toml
         sed -i "s/^__version__ = .*/__version__ = \"${NEW_TAG}\"/" dstaf/__init__.py
         git add pyproject.toml dstaf/__init__.py
         git commit -m "Bump Version to ${NEW_TAG}"
-        git push origin ${{ env.BRANCH_NAME }}
+        git push origin $BRANCH_NAME
 
     - name: Create a pull request
       id: pr_number
