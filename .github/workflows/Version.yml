@@ -81,10 +81,6 @@ jobs:
         GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         PR_TITLE: ${{ github.event.pull_request.title }}
       run: |
-        if [[ ! "$PR_TITLE" =~ ^(Auto) ]]; then
-          echo "Automatic PRs should not run updates"
-          exit 0
-        fi
         BRANCH_NAME="gh-actions-$(uuidgen)"
         echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
         TAG_WITHOUT_V="${NEW_TAG:1}"
@@ -105,10 +101,6 @@ jobs:
         GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         PR_TITLE: ${{ github.event.pull_request.title }}
       run: |
-        if [[ ! "$PR_TITLE" =~ ^(Auto) ]]; then
-          echo "Automatic PRs should not create a PR"
-          exit 0
-        fi
         gh pr create --title "Auto Version Bump to ${NEW_TAG}" \
                      --body "Automated version update triggered by GitHub Actions" \
                      --base master --head ${{ env.BRANCH_NAME }}
@@ -120,10 +112,6 @@ jobs:
         GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         PR_TITLE: ${{ github.event.pull_request.title }}
       run: |
-        if [[ ! "$PR_TITLE" =~ ^(Auto) ]]; then
-          echo "Automatic PRs should not merge PRs"
-          exit 0
-        fi
         gh pr merge ${{ env.PR_NUMBER }} --merge --admin
 
     - name: Checkout for Tag
@@ -141,10 +129,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         PR_TITLE: ${{ github.event.pull_request.title }}
       run: |
-        if [[ ! "$PR_TITLE" =~ ^(Auto) ]]; then
-          echo "Automatic PRs should not run updates"
-          exit 0
-        fi
         git tag -f "$vmajor"
         git push -f origin "$vmajor"
         git tag -f "$vminor"
@@ -155,10 +139,6 @@ jobs:
         GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         PR_TITLE: ${{ github.event.pull_request.title }}
       run: |
-        if [[ ! "$PR_TITLE" =~ ^(Auto) ]]; then
-          echo "Automatic PRs should not create releases"
-          exit 0
-        fi
         gh release create "${{ steps.bump-tag.outputs.new_tag }}" \
           --repo="${{ github.repository }}" \
           --title="DStaf ${{ env.TAG_WITHOUT_V }}" \
