@@ -72,8 +72,9 @@ jobs:
     - name: Update Version Strings
       env:
         NEW_TAG: ${{ steps.bump-tag.outputs.new_tag }}
+        GITHUB_TOKEN: ${{ secrets.DSS_TOKEN }}
       run: |
-        git config user.name "GitHub Actions[Bot]"
+        git config user.name "Dasha Sierra"
         git config user.email "gh_actions@dashasierra.com"
         sed -i "s/^version = .*/version = \"${NEW_TAG}\"/" pyproject.toml
         sed -i "s/^__version__ = .*/__version__ = \"${NEW_TAG}\"/" dstaf/__init__.py
