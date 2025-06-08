@@ -97,6 +97,7 @@ jobs:
         gh pr create --title "Auto Version Bump to ${NEW_TAG}" \
                      --body "Automated version update triggered by GitHub Actions" \
                      --base master --head auto-version-update
+        
     - name: Review the pull request
       env:
         GH_TOKEN: ${{ secrets.PAT_TOKEN }}
