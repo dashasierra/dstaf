@@ -21,9 +21,9 @@ from multiprocessing.shared_memory import SharedMemory
 from typing import Union
 from uuid import UUID, uuid4
 
-from .enumerators import *
+from .enumerators import HorizontalAlignment, VerticalAlignment
 
-_app_server_default_instance = None
+APP_SERVER_DEFAULT_INSTANCE = None
 
 
 logger = logging.getLogger(__name__)
@@ -41,7 +41,7 @@ class ApplicationServer:
     any Application that is added to it.
     """
 
-    class Exceptions:
+    class Exceptions:  # pylint: disable=too-few-public-methods
         """
         Server Exceptions
         """
@@ -56,8 +56,17 @@ class ApplicationServer:
             Provided Thread is not a Future
             """
 
-    class ApplicationData:
+    class ApplicationData:  # pylint: disable=too-few-public-methods
+        """
+        Class for tracking of Application Data
+        """
+
         def __init__(self, application: Application):
+            """
+            Create ApplicationData Instance
+
+            :param application: Application(type) to add
+            """
             self.runtime = application
 
     def __init__(
@@ -75,25 +84,29 @@ class ApplicationServer:
         """
         self.server_name = name
         self.thread_pool = ThreadPoolExecutor(workers)
-        self.token_memory = SharedMemory(
-            create=True, name="TokenStore", size=64)
+        self.token_memory = SharedMemory(create=True, name="TokenStore", size=64)
         self.applications = {}
         self.__autostart = autostart
         self.__started = False
 
         # Set this instance as the default application server if one is not
         # setup
-        logging.info(
-            "ApplicationServer started (%s) instance",
-            self.server_name)
-        global _app_server_default_instance
-        if _app_server_default_instance is None:
+        logging.info("ApplicationServer started (%s) instance", self.server_name)
+        global APP_SERVER_DEFAULT_INSTANCE  # pylint: disable=global-statement
+        if APP_SERVER_DEFAULT_INSTANCE is None:
             logging.debug(
                 "Creating default ApplicationServer instance as one is not set"
             )
-            _app_server_default_instance = self
+            APP_SERVER_DEFAULT_INSTANCE = self
 
     def start_application(self, app: Application) -> None:
+        """
+        Create Thread Futures for Application and
+        commence the application's .run() component
+
+        :param app: Application to run
+        :return:
+        """
         if not isinstance(app, Application):
             raise TypeError(
                 f"""start_application expected app of type '{
@@ -103,53 +116,66 @@ class ApplicationServer:
 
         if str(inspect.getsource(app.run)).count("while self.running") == 0:
             logger.warning(
-                f"""Application '{
-                    app.__class__.__name__}' does not have a 'while self.running' loop"""
+                "Application '%s' does not have a 'while self.running' loop",
+                app.__class__.__name__,
             )
         self.applications[self.thread_pool.submit(app.run)] = self.ApplicationData(
             application=app
         )
+        # logger.debug(
+        #    f"""{
+        #        app.__class__.__name__}(name:str('{
+        #        app.app_name}'), app_id:UUID('{
+        #        app.app_id}')) added to {
+        #            self.__class__.__name__}('{
+        #                self.server_name}')."""
+        # )
         logger.debug(
-            f"""{
-                app.__class__.__name__}(name:str('{
-                app.app_name}'), app_id:UUID('{
-                app.app_id}')) added to {
-                    self.__class__.__name__}('{
-                        self.server_name}')."""
+            "%s(name:str('%s'), app_id:UUID('%s')) added to %s('%s')",
+            app.__class__.__name__,
+            app.app_name,
+            app.app_id,
+            self.__class__.__name__,
+            self.server_name,
         )
-        if self.__autostart and self.__started == False:
+        if self.__autostart and self.__started is False:
             logger.debug("Starting application server automatically")
             self.run()
 
-    def remove_application(self, thread):
-        if not isinstance(thread, concurrent.futures._base.Future):
+    def remove_application(self, thread: concurrent.futures._base.Future):
+        """
+        Remove Application from the server gracefully,
+        then forcefully if the application thread does
+        not self-terminate.
+
+        :param thread: Thread Future for the application
+        """
+        if not isinstance(
+            thread, concurrent.futures._base.Future  # pylint: disable=protected-access
+        ):
             raise self.Exceptions.NotFuture(
                 "remove_application expected Future, " f"got {type(thread)}"
             )
         logger.debug("Sending stop to Application at 0x%s", id(thread))
         start = time.time()
-        logger.debug(f"Waiting for 0x{id(thread)} to terminate...")
+        logger.debug("Waiting for 0x%s to terminate...", id(thread))
         while thread.running():
             self.applications[thread].runtime.running = False
             if time.time() - start >= 3.0:
                 logger.warning(
                     (
-                        f"Application 0x{id(thread)} is not responding "
-                        "to termination signal"
+                        "Application 0x%s is not responding to termination signal",
+                        id(thread),
                     )
                 )
-                logger.info(
-                    (
-                        "Attempting forceful termination for "
-                        f"0x{id(thread)}"
-                    )
-                )
+                logger.info(("Attempting forceful termination for 0x%s", id(thread)))
                 exception = thread.exception(2)
                 if exception:
                     logger.error(
                         (
-                            f"Application at 0x{id(thread)} threw exception"
-                            f": {exception}"
+                            "Application at 0x%s threw exception: %s",
+                            id(thread),
+                            exception,
                         )
                     )
         logger.info(
@@ -160,31 +186,33 @@ class ApplicationServer:
         del self.applications[thread]
 
     def shutdown(self):
+        """
+        Shut Down Application Server and all Applications within.
+        """
         logger.info(
             "Shutdown %s (%s) Signal Received",
             self.__class__.__name__,
             self.server_name,
         )
         for application_thread in list(self.applications.keys()):
-            logger.info(
-                "Terminating Application at 0x%s",
-                id(application_thread))
+            logger.info("Terminating Application at 0x%s", id(application_thread))
             self.remove_application(application_thread)
 
     def application_check(
         self, thread: Union[concurrent.futures._base.Future, None] = None
     ) -> tuple:
+        """
+        Checks if an application is alive or not
+
+        :param thread: Application Thread, or None checks all Applications
+        :return: tuple of applications that are not alive
+        """
         not_alive = []
-        if not thread:
-            for key in self.applications.keys():
+        if not thread:  # pylint: disable=too-many-nested-blocks
+            for key in self.applications:
                 if not key.running():
                     error = key.exception()
                     if error:
-                        logger.error(
-                            (
-                                f"0x{id(key)}: Unhandled Exception '{error}'"
-                            )
-                        )
                         tb = traceback.format_exception(
                             type(error), error, error.__traceback__
                         )
@@ -194,15 +222,16 @@ class ApplicationServer:
                                 line = [line]
                             else:
                                 line = line.split("\n")
-                                if line[len(line)-1] == "":
+                                if line[len(line) - 1] == "":
                                     del line[-1]
                             for line_detail in line:
-                                logger.error(f"0x{id(key)}: {line_detail}")
+                                logger.error("0x%s: %s", id(key), line_detail)
                     else:
                         logger.warning(
                             (
-                                f"Application at 0x{id(key)} "
-                                "has stopped running. Terminating"
+                                "Application at 0x%s "
+                                "has stopped running. Terminating",
+                                id(key),
                             )
                         )
                     not_alive.append(key)
@@ -210,14 +239,17 @@ class ApplicationServer:
         return () if thread.running() else (thread,)
 
     def run(self):
+        """
+        Start Application Server
+        """
         self.__started = True
         try:
-            logger.debug("Press Ctrl-C to shit it all")
+            logger.debug("Press Ctrl-C to stop it all")
             while True:
                 for application in self.application_check():
                     self.remove_application(application)
                 if len(self.applications) == 0:
-                    logger.info(f"No applications running")
+                    logger.info("No applications running")
                     break
         except KeyboardInterrupt:
             self.shutdown()
@@ -228,6 +260,15 @@ class ApplicationServer:
 
 
 class Application(ABC):
+    """
+    Abstract Application Base Class
+
+    Developers should use this class, and add them to
+    an instance of ApplicationServer. If the developer
+    does not specify an instance of ApplicationServer,
+    this class will create a default instance.
+    """
+
     class AppMeta:
         """
         Application Meta Class. This class provides metadata for
@@ -240,7 +281,7 @@ class Application(ABC):
         """
 
         def __setattr_function__(self, key: str, value: any):
-            if key not in self.__dict__.keys():
+            if key not in self.__dict__:
                 message = f"The attribute '{key}' does not exist in AppMeta"
                 raise NameError(message)
             if not isinstance(value, type(self.__dict__[key])):
@@ -271,6 +312,10 @@ class Application(ABC):
                 self.__setattr_function__(key=key, value=value)
 
         def dict(self):
+            """
+            Return Application Configuration as a Dictionary
+            :return:
+            """
             dictionary = {}
             for key, value in self.__dict__.items():
                 if not key.startswith("_"):
@@ -278,6 +323,12 @@ class Application(ABC):
             return dictionary
 
         def json(self, **kwargs):
+            """
+            Return Application Configuration as JSON.
+
+            :param kwargs: Arguments passed to json.dumps(...)
+            :return: json.dumps(self)
+            """
             return json.dumps(self.dict(), **kwargs)
 
         def __repr__(self):
@@ -313,8 +364,7 @@ class Application(ABC):
 
         # Type Checks
         if not isinstance(app_id, UUID):
-            raise TypeError(
-                f"{self.__class__.__name__}(app_id) must be of type UUID")
+            raise TypeError(f"{self.__class__.__name__}(app_id) must be of type UUID")
         if not isinstance(app_meta, self.AppMeta):
             raise TypeError(
                 f"{self.__class__.__name__}(startup) must be of type AppMeta"
@@ -327,14 +377,14 @@ class Application(ABC):
         self.meta = app_meta
 
         # Import Global Server Instance
-        global _app_server_default_instance
+        global APP_SERVER_DEFAULT_INSTANCE  # pylint: disable=global-statement
 
         self.server = (
-            server or _app_server_default_instance
+            server or APP_SERVER_DEFAULT_INSTANCE
         )  # Use default if none provided
         if not self.server:
             # Create default server instance, and start it
-            self.server = _app_server_default_instance = ApplicationServer(
+            self.server = APP_SERVER_DEFAULT_INSTANCE = ApplicationServer(
                 autostart=True
             )
         if self.server:
@@ -346,4 +396,13 @@ class Application(ABC):
 
     @abstractmethod
     def run(self):
+        """
+        Abstract Run Method. Must be implemented before
+        adding to the Application Server.
+
+        Requires a loop of: while self.running:
+
+        Otherwise, the application will close automatically
+        once the run() function has completed.
+        """
         raise NotImplementedError("Run function not implemented")

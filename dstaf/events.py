@@ -1,9 +1,13 @@
+"""
+Events Subsystem
+"""
+
 import os
 from abc import ABC, abstractmethod
 from enum import Enum
 
 
-class Event(ABC):
+class Event(ABC):  # pylint: disable=too-few-public-methods
     """
     All Events
     """
@@ -15,7 +19,7 @@ class Event(ABC):
         raise NotImplementedError
 
 
-class InputEvent(Event):
+class InputEvent(Event):  # pylint: disable=too-few-public-methods
     """
     User Input Event
     """
@@ -46,7 +50,10 @@ class _Win32ClickType(Enum):
 ClickType = _Win32ClickType if os.name.lower() == "nt" else _CursesClickType
 
 
-class MouseEvent(InputEvent):
+class MouseEvent(InputEvent):  # pylint: disable=too-few-public-methods
+    """
+    Mouse Event
+    """
 
     system = 5
 

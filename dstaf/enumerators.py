@@ -1,3 +1,7 @@
+"""
+Project-wide Enumerators
+"""
+
 import enum
 
 
