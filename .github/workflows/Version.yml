@@ -79,18 +79,17 @@ jobs:
       env:
         NEW_TAG: ${{ steps.bump-tag.outputs.new_tag }}
       run: |
-        TAG_WITHOUT_V="${NEW_TAG:1}"
-        BRANCH_NAME="vupdate-$(uuidgen)"
+        BRANCH_NAME="gh-actions-$(uuidgen)"
         echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
-        echo "TAG_WITHOUT_V=$TAG_WITHOUT_V" >> $GITHUB_ENV
+        echo "TAG_WITHOUT_V=${NEW_TAG:1}" >> $GITHUB_ENV
         git config user.name "GitHub Actions"
         git config user.email "actions@github.com"
         git remote set-url origin https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/dashasierra/dstaf.git
         git checkout -b $BRANCH_NAME
-        sed -i "s/^version = .*/version = \"${NEW_TAG}\"/" pyproject.toml
-        sed -i "s/^__version__ = .*/__version__ = \"${NEW_TAG}\"/" dstaf/__init__.py
+        sed -i "s/^version = .*/version = \"${TAG_WITHOUT_V}\"/" pyproject.toml
+        sed -i "s/^__version__ = .*/__version__ = \"${TAG_WITHOUT_V}\"/" dstaf/__init__.py
         git add pyproject.toml dstaf/__init__.py
-        git commit -m "Bump Version to ${NEW_TAG}"
+        git commit -m "Bump Version to ${TAG_WITHOUT_V}"
         git push origin $BRANCH_NAME
 
     - name: Create a pull request
