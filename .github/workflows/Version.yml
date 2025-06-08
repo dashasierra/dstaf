@@ -19,7 +19,7 @@ jobs:
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
-          if [[ ! "$PR_TITLE" =~ ^(Major|Minor|Patch|None) ]]; then
+          if [[ ! "$PR_TITLE" =~ ^(Major|Minor|Patch|None|Auto) ]]; then
             echo "Error: Pull request title must start with 'Major', 'Minor', 'Patch', or 'None'."
             echo "     - '$PR_TITLE'"
             exit 1
@@ -78,10 +78,12 @@ jobs:
         Create_Branch
       env:
         NEW_TAG: ${{ steps.bump-tag.outputs.new_tag }}
+        GH_TOKEN: ${{ secrets.PAT_TOKEN }}
       run: |
         BRANCH_NAME="gh-actions-$(uuidgen)"
         echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
-        echo "TAG_WITHOUT_V=${NEW_TAG:1}" >> $GITHUB_ENV
+        TAG_WITHOUT_V="${NEW_TAG:1}"
+        echo "TAG_WITHOUT_V=$TAG_WITHOUT_V" >> $GITHUB_ENV
         git config user.name "GitHub Actions"
         git config user.email "actions@github.com"
         git remote set-url origin https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/dashasierra/dstaf.git
