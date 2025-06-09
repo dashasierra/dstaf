@@ -42,16 +42,3 @@ class MyApp(Application):
                 self.stop()
 
 ```
-
-## Contributing
-
-If you'd like to contribute to dstaf, then:
-
-1. Create a new branch off [master](https://github.com/dashasierra/dstaf), preferably prefixed with your GitHub username. For example, "myusername/patchfix"
-2. Commit your changes into your branch.
-3. Open a PR to merge your branch into Master.
-   1. Your PR Title must start with a versioning semaphore of, "Major", "Minor", "Patch", or, "Doc".
-   2. "Doc" is for documentation updates only, and may not be used for code updates.
-   3. Complete the pre-filled PR form as best you can, and press "Create Pull Request".
-   4. Your changes will be reviewed before approval.
-
