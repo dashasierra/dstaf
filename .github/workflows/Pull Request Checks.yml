@@ -13,8 +13,8 @@ on:
 
 jobs:
 
-  check-title:
-    name: Check PR for Version Tag
+  semaphore:
+    name: Version Semaphore Requirement
     runs-on: ubuntu-latest
     if: github.event_name != 'push' && github.event.pull_request.merged == false
     steps:
@@ -26,16 +26,19 @@ jobs:
           if [[ ! "$PR_TITLE" =~ ^(Major|Minor|Patch|Doc|Auto) ]]; then
             echo "Error: Pull request title must start with 'Major', 'Minor', 'Patch', or 'Doc'."
             echo "  〰️ Branch Name: '$BRANCH_NAME', ❌ PR Title: '$PR_TITLE'"
+            echo "     You need to create a new pull request, or commit a change for this test to run again."
             exit 1
           fi
           if [[ "$PR_TITLE" =~ ^Auto ]] && [[ ! "$BRANCH_NAME" =~ ^gh-actions ]]; then
             echo "Error: Auto labelled PRs must only be created by GitHub Actions. Your PR must start with a version semaphore. See https://semver.org/ for definitions."
             echo "  ✔️ Branch Name: '$BRANCH_NAME', ❌ PR Title: '$PR_TITLE'"
+            echo "     You need to create a new pull request, or commit a change for this test to run again."
             exit 1
           fi
           if [[ "$PR_TITLE" =~ ^(Major|Minor|Patch|Doc) ]] && [[ "$BRANCH_NAME" =~ ^gh-actions ]]; then
             echo "Error: Branches starting with 'gh-actions' are only to be opened by Create Release action. Rename your branch."
             echo "  ❌ Branch Name: '$BRANCH_NAME', ✔️ PR Title: '$PR_TITLE'"
+            echo "     You must rename your branch and submit a new commit for this test to run again."
             exit 1
           fi
 
