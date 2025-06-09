@@ -13,7 +13,7 @@ The subject line of this Pull Request starts with the word:
 - [ ] Major
 - [ ] Minor
 - [ ] Patch
-- [ ] None (Documentation only)
+- [ ] Doc (Documentation: No Version Update)
 
 ... which is appropriately reflective of this content of this PR. See https://semver.org/ for definitions.
 
