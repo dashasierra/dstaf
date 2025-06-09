@@ -51,13 +51,17 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Install Code Analysis Requirements
+    - name: Install Requirements
       run: |
-        pip install --upgrade bandit pylint 
+        pip install --upgrade bandit pylint isort
 
-    - name: Vulnerability Scan
+    - name: Bandit Vulnerability Scan
       run: |
         bandit dstaf -r -v -n 3 --severity-level=all
+
+    - name: Check Optimised Imports
+      run: |
+        isort --check-only dstaf
 
     - name: Lint Scan
       run: |
