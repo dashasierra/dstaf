@@ -25,17 +25,17 @@ jobs:
         run: |
           if [[ ! "$PR_TITLE" =~ ^(Major|Minor|Patch|Doc|Auto) ]]; then
             echo "Error: Pull request title must start with 'Major', 'Minor', 'Patch', or 'Doc'."
-            echo "     - '$PR_TITLE'"
+            echo "  〰️ Branch Name: '$BRANCH_NAME', ❌ PR Title: '$PR_TITLE'"
             exit 1
           fi
           if [[ "$PR_TITLE" =~ ^Auto ]] && [[ ! "$BRANCH_NAME" =~ ^gh-actions ]]; then
-            echo "Automatic branches must only be created by GitHub Actions."
-            echo "  Branch Name: '$BRANCH_NAME'"
+            echo "Error: Auto labelled PRs must only be created by GitHub Actions. Your PR must start with a version semaphore. See https://semver.org/ for definitions."
+            echo "  ✔️ Branch Name: '$BRANCH_NAME', ❌ PR Title: '$PR_TITLE'"
             exit 1
           fi
           if [[ "$PR_TITLE" =~ ^(Major|Minor|Patch|Doc) ]] && [[ "$BRANCH_NAME" =~ ^gh-actions ]]; then
-            echo "Branches starting with gh-actions are only to be opened by Create Release action. Rename your branch."
-            echo "  Branch Name: '$BRANCH_NAME'"
+            echo "Error: Branches starting with 'gh-actions' are only to be opened by Create Release action. Rename your branch."
+            echo "  ❌ Branch Name: '$BRANCH_NAME', ✔️ PR Title: '$PR_TITLE'"
             exit 1
           fi
 
