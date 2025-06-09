@@ -406,3 +406,11 @@ class Application(ABC):
         once the run() function has completed.
         """
         raise NotImplementedError("Run function not implemented")
+
+    def stop(self):
+        """
+        Stop the Application. Users can do whatever they need
+        to do to clean up here.
+        """
+        logging.info("Application '%s' received stop signal", self.app_name)
+        self.running = False
