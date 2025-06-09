@@ -27,7 +27,7 @@ classifiers = [
     'Topic :: Software Development :: User Interfaces',
     'Topic :: Terminals',
 ]
-license = "EFL-2.0"
+license = "MIT"
 license-files = ["LICENSE"]
 
 [project.urls]
