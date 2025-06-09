@@ -40,10 +40,7 @@ class MyApp(Application):
             self.logger.info(counter)
             if counter == 4000:
                 self.stop()
-        self.logger.info("Shutting down %s", self.app_name)
 
-    def stop(self):
-        self.running = False
 ```
 
 ## Contributing
