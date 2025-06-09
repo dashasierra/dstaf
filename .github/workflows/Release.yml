@@ -43,11 +43,16 @@ jobs:
       env:
         NEW_TAG: ${{ steps.bump-tag.outputs.new_tag }}
         GH_TOKEN: ${{ secrets.PAT_TOKEN }}
-        PR_TITLE: ${{ github.event.pull_request.head.ref }}
+        HEAD_TITLE: ${{ github.event.pull_request.head.ref }}
+        PR_TITLE: ${{ github.event.pull_request.title }}
       run: |
-        echo "PR TITLE: '${{ env.PR_TITLE }}'"
-        if [[ "${{ env.PR_TITLE }}" =~ ^gh-actions ]]; then
+        echo "HEAD TITLE: '${{ env.HEAD_TITLE }}'"
+        if [[ "${{ env.HEAD_TITLE }}" =~ ^gh-actions ]]; then
           echo Do not run automated PRs. Skip section.
+          exit 0
+        fi
+        if [[ "${{ env.PR_TITLE }}" =~ ^(Doc|Auto) ]]; then
+          echo Do not run for Auto or Doc. Skip section.
           exit 0
         fi
         BRANCH_NAME="gh-actions-$(uuidgen)"
@@ -75,7 +80,7 @@ jobs:
         NEW_TAG: ${{ steps.bump-tag.outputs.new_tag }}
       run: |
         echo "PR TITLE: '${{ env.PR_TITLE }}'"
-        if [[ "${{ env.PR_TITLE }}" =~ ^Auto ]]; then
+        if [[ "${{ env.PR_TITLE }}" =~ ^(Doc|Auto) ]]; then
           echo Do not run automated PRs. Skip section.
           exit 0
         fi
@@ -91,7 +96,7 @@ jobs:
         PR_TITLE: ${{ github.event.pull_request.title }}
       run: |
         echo "PR TITLE: '${{ env.PR_TITLE }}'"
-        if [[ "${{ env.PR_TITLE }}" =~ ^Auto ]]; then
+        if [[ "${{ env.PR_TITLE }}" =~ ^(Doc|Auto) ]]; then
           echo Do not run automated PRs. Skip section.
           exit 0
         fi
@@ -113,7 +118,7 @@ jobs:
         PR_TITLE: ${{ github.event.pull_request.title }}
       run: |
         echo "PR TITLE: '${{ env.PR_TITLE }}'"
-        if [[ "${{ env.PR_TITLE }}" =~ ^Auto ]]; then
+        if [[ "${{ env.PR_TITLE }}" =~ ^(Doc|Auto) ]]; then
           echo Do not run automated PRs. Skip section.
           exit 0
         fi
@@ -128,7 +133,7 @@ jobs:
         PR_TITLE: ${{ github.event.pull_request.title }}
       run: |
         echo "PR TITLE: '${{ env.PR_TITLE }}'"
-        if [[ "${{ env.PR_TITLE }}" =~ ^Auto ]]; then
+        if [[ "${{ env.PR_TITLE }}" =~ ^(Doc|Auto) ]]; then
           echo Do not run automated PRs. Skip section.
           exit 0
         fi
