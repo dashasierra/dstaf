@@ -39,3 +39,4 @@ optional = true
 
 [tool.poetry.group.test.dependencies]
 autopep8 = ">=2.3.2,<3"
+pytest = ">=8.4.0,<9.0"
