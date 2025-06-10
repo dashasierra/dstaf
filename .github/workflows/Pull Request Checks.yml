@@ -53,7 +53,7 @@ jobs:
 
     - name: Install Requirements
       run: |
-        pip install --upgrade bandit pylint isort
+        pip install --upgrade bandit pylint isort pytest
 
     - name: Bandit Vulnerability Scan
       run: |
@@ -66,3 +66,7 @@ jobs:
     - name: Lint Scan
       run: |
         pylint dstaf/*py
+
+    - name: Perform Unit Tests
+      run: |
+        pytest
