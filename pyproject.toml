@@ -37,9 +37,9 @@ Issues = "https://github.com/dashasierra/dstaf/issues"
 [project.optional-dependencies]
 # Code Quality Controls
 test = [
-    "autopep8",
     "bandit",
     "black",
+    "isort",
     "pytest",
     "pylint",
     ]
