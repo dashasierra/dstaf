@@ -14,11 +14,10 @@ jobs:
     if: >
       github.event.pull_request.merged == true &&
       github.event.pull_request.base.ref == 'master' &&
-      !(
+      (
         startsWith(github.event.pull_request.head.ref, 'Major') ||
         startsWith(github.event.pull_request.head.ref, 'Minor') ||
-        startsWith(github.event.pull_request.head.ref, 'Patch') ||
-        startsWith(github.event.pull_request.head.ref, 'Doc')
+        startsWith(github.event.pull_request.head.ref, 'Patch')
       )
     steps:
     - name: Checkout
@@ -77,7 +76,6 @@ jobs:
         HEAD_TITLE: ${{ github.event.pull_request.head.ref }}
         PR_TITLE: ${{ github.event.pull_request.title }}
       run: |
-        echo "${{ secrets.DASHABOT_PK }}" > private-key.pem
         echo "HEAD TITLE: '${{ env.HEAD_TITLE }}'"
         if [[ "${{ env.HEAD_TITLE }}" =~ ^gh-actions ]]; then
           echo Do not run automated PRs. Skip section.
