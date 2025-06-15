@@ -24,7 +24,6 @@ jobs:
           DASHABOT_IID: ${{ secrets.DASHABOT_IID }}
         run: |
           pip install --upgrade .[cicd]
-          pwd
           echo "${{ secrets.DASHABOT_PK }}" | python3 .github/generate_jwt.py
           echo "Token Requirement OK"
 
@@ -90,11 +89,15 @@ jobs:
 
     - name: Check Optimised Imports
       run: |
-        isort --check-only dstaf
+        isort --check-only dstaf -v
+
+    - name: Check Black Formatting
+      run: |
+        black dstaf/*py --check -t py39
 
     - name: Lint Scan
       run: |
-        pylint dstaf/*py
+        pylint dstaf/*py --py-version "3.9"
 
     - name: Perform Unit Tests
       run: |
