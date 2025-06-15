@@ -17,7 +17,9 @@ jobs:
       !(
         startsWith(github.event.pull_request.head.ref, 'Major') ||
         startsWith(github.event.pull_request.head.ref, 'Minor') ||
-        startsWith(github.event.pull_request.head.ref, 'Patch')
+        startsWith(github.event.pull_request.head.ref, 'Patch') ||
+        startsWith(github.event.pull_request.head.ref, 'Doc') ||
+        startsWith(github.event.pull_request.head.ref, 'Auto')
       )
     steps:
     - name: Checkout
