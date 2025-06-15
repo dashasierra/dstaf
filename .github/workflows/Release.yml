@@ -24,18 +24,25 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Generate installation token
+    - name: Generate JWT
       id: get_token
       env:
         DASHABOT_APPID: ${{ secrets.DASHABOT_APPID }}
         DASHABOT_IID: ${{ secrets.DASHABOT_IID }}
       run: |
-        echo "${{ secrets.DASHABOT_PK }}" > private-key.pem
+        if [[ "${{ env.PR_TITLE }}" =~ ^(Doc|Auto) ]]; then
+          echo Do not run automated PRs. Skip section.
+          exit 0
+        fi
         pip install PyJWT cryptography requests
-        python3 .github/generate_jwt.py
+        echo "${{ secrets.DASHABOT_PK }}" | python3 .github/generate_jwt.py
 
     - name: Check Token Availability
       run: |
+        if [[ "${{ env.PR_TITLE }}" =~ ^(Doc|Auto) ]]; then
+          echo Do not run automated PRs. Skip section.
+          exit 0
+        fi
         if [[ "{{ $env.GH_TOKEN }}" == "{{ $env.GITHUB_TOKEN }}" ]]; then
           echo "GH Token not set or incorrectly paired"
           exit 1
@@ -85,7 +92,7 @@ jobs:
         TAG_WITHOUT_V="${NEW_TAG:1}"
         echo "TAG_WITHOUT_V=$TAG_WITHOUT_V" >> $GITHUB_ENV
         git config user.email "dashabot@users.noreply.github.com"
-        git config user.name "dasha-bot"
+        git config user.name "dashabot[bot]"
         git config user.password "${{ env.GITHUB_TOKEN }}"
         git remote set-url origin https://x-access-token:${{ env.GITHUB_TOKEN }}@github.com/${{ github.repository }}
         git checkout -b $BRANCH_NAME
@@ -116,6 +123,10 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.PAT_TOKEN }}
       run: |
+        if [[ "${{ env.PR_TITLE }}" =~ ^(Doc|Auto) ]]; then
+          echo Do not run automated PRs. Skip section.
+          exit 0
+        fi
         gh pr review ${{ env.PR_NUMBER }} --approve
         echo "Reset GH_TOKEN"
         echo "GH_TOKEN=${{ env.GITHUB_TOKEN }}" >> $GITHUB_ENV
