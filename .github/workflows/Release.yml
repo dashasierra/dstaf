@@ -89,7 +89,7 @@ jobs:
         TAG_WITHOUT_V="${NEW_TAG:1}"
         echo "TAG_WITHOUT_V=$TAG_WITHOUT_V" >> $GITHUB_ENV
         git config user.email "dashabot@users.noreply.github.com"
-        git config user.name "dashabot[bot]"
+        git config user.name "dashabot"
         git config user.password "${{ env.GITHUB_TOKEN }}"
         git remote set-url origin https://x-access-token:${{ env.GITHUB_TOKEN }}@github.com/${{ github.repository }}
         git checkout -b $BRANCH_NAME
