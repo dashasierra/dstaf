@@ -22,7 +22,7 @@ jobs:
         run: |
           pip install --upgrade PyJWT cryptography requests
           pwd
-          echo "${{ secrets.DASHABOT_PK }}" | python3 ./.github/generate_jwt.py
+          echo "${{ secrets.DASHABOT_PK }}" | python3 ~/dstaf/.github/generate_jwt.py
           echo "Token Requirement OK"
 
       - name: Check Token Availability
