@@ -30,12 +30,20 @@ jobs:
         DASHABOT_APPID: ${{ secrets.DASHABOT_APPID }}
         DASHABOT_IID: ${{ secrets.DASHABOT_IID }}
       run: |
+        if [[ "${{ env.PR_TITLE }}" =~ ^(Doc|Auto) ]]; then
+          echo Do not run automated PRs. Skip section.
+          exit 0
+        fi
         echo "${{ secrets.DASHABOT_PK }}" > private-key.pem
         pip install PyJWT cryptography requests
         python3 .github/generate_jwt.py
 
     - name: Check Token Availability
       run: |
+        if [[ "${{ env.PR_TITLE }}" =~ ^(Doc|Auto) ]]; then
+          echo Do not run automated PRs. Skip section.
+          exit 0
+        fi
         if [[ "{{ $env.GH_TOKEN }}" == "{{ $env.GITHUB_TOKEN }}" ]]; then
           echo "GH Token not set or incorrectly paired"
           exit 1
@@ -116,6 +124,10 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.PAT_TOKEN }}
       run: |
+        if [[ "${{ env.PR_TITLE }}" =~ ^(Doc|Auto) ]]; then
+          echo Do not run automated PRs. Skip section.
+          exit 0
+        fi
         gh pr review ${{ env.PR_NUMBER }} --approve
         echo "Reset GH_TOKEN"
         echo "GH_TOKEN=${{ env.GITHUB_TOKEN }}" >> $GITHUB_ENV
