@@ -15,9 +15,6 @@ jobs:
       github.event.pull_request.merged == true &&
       github.event.pull_request.base.ref == 'master' &&
       !(
-        startsWith(github.event.pull_request.head.ref, 'Major') ||
-        startsWith(github.event.pull_request.head.ref, 'Minor') ||
-        startsWith(github.event.pull_request.head.ref, 'Patch') ||
         startsWith(github.event.pull_request.head.ref, 'Doc') ||
         startsWith(github.event.pull_request.head.ref, 'Auto')
       )
