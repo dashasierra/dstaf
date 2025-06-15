@@ -174,7 +174,7 @@ jobs:
           exit 0
         fi
         pip install poetry
-        poetry build
+        poetry build --format=wheel --no-cache
         gh release create "${{ steps.bump-tag.outputs.new_tag }}" \
           --repo="${{ github.repository }}" \
           --title="DStaf ${{ env.TAG_WITHOUT_V }}" \
