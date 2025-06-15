@@ -118,7 +118,7 @@ jobs:
       run: |
         gh pr review ${{ env.PR_NUMBER }} --approve
         echo "Reset GH_TOKEN"
-        echo "GH_TOKEN=$(echo ${{ env.GITHUB_TOKEN }}" >> $GITHUB_ENV
+        echo "GH_TOKEN=${{ env.GITHUB_TOKEN }}" >> $GITHUB_ENV
 
     - name: Merge the pull request
       env:
