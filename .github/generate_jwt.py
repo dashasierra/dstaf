@@ -1,3 +1,9 @@
+"""
+Generates a JWT for Github Automation
+
+This code is not my finest hour.
+"""
+
 import os
 import jwt
 import time
