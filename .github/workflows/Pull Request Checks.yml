@@ -63,6 +63,7 @@ jobs:
       run: |
         echo "${{ secrets.DASHABOT_PK }}" > private-key.pem
         python3 .github/generate_jwt.py
+        echo "Token Requirement OK"
 
     - name: Bandit Vulnerability Scan
       run: |
