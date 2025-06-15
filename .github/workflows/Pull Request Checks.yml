@@ -15,6 +15,9 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name != 'push' && github.event.pull_request.merged == false
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: JWT Generation Requirement
         env:
           DASHABOT_APPID: ${{ secrets.DASHABOT_APPID }}
@@ -22,7 +25,7 @@ jobs:
         run: |
           pip install --upgrade PyJWT cryptography requests
           pwd
-          echo "${{ secrets.DASHABOT_PK }}" | python3 ~/dstaf/.github/generate_jwt.py
+          echo "${{ secrets.DASHABOT_PK }}" | python3 .github/generate_jwt.py
           echo "Token Requirement OK"
 
       - name: Check Token Availability
