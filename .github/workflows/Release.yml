@@ -24,11 +24,36 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
+    - name: Generate installation token
+      id: get_token
+      env:
+        DASHABOT_APPID: ${{ secrets.DASHABOT_APPID }}
+        DASHABOT_IID: ${{ secrets.DASHABOT_IID }}
+      run: |
+        echo "${{ secrets.DASHABOT_PK }}" > private-key.pem
+        pip install PyJWT cryptography requests
+        python3 .github/generate_jwt.py
+
+    - name: Check Token Availability
+      run: |
+        if [[ "{{ $env.GH_TOKEN }}" == "{{ $env.GITHUB_TOKEN }}" ]]; then
+          echo "GH Token not set or incorrectly paired"
+          exit 1
+        fi
+        if [[ "{{ $env.GH_TOKEN }}" == "" ]]; then
+          echo "GH_TOKEN empty"
+          exit 1
+        fi
+        if [[ "{{ $env.GITHUB_TOKEN }}" == "" ]]; then
+          echo "GITHUB_TOKEN empty"
+          exit 1
+        fi
+        echo "Tokens OK" 
+
     - name: Increment Version
       id: bump-tag
       uses: anothrNick/github-tag-action@1.73.0
       env:
-        GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         WITH_V: true
         DRY_RUN: true
         DEFAULT_BUMP: patch
@@ -42,10 +67,10 @@ jobs:
         Create_Branch
       env:
         NEW_TAG: ${{ steps.bump-tag.outputs.new_tag }}
-        GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         HEAD_TITLE: ${{ github.event.pull_request.head.ref }}
         PR_TITLE: ${{ github.event.pull_request.title }}
       run: |
+        echo "${{ secrets.DASHABOT_PK }}" > private-key.pem
         echo "HEAD TITLE: '${{ env.HEAD_TITLE }}'"
         if [[ "${{ env.HEAD_TITLE }}" =~ ^gh-actions ]]; then
           echo Do not run automated PRs. Skip section.
@@ -59,10 +84,10 @@ jobs:
         echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
         TAG_WITHOUT_V="${NEW_TAG:1}"
         echo "TAG_WITHOUT_V=$TAG_WITHOUT_V" >> $GITHUB_ENV
-        git config user.email "33302393+dashasierra@users.noreply.github.com"
-        git config user.name "Dasha Sierra"
+        git config user.email "dashabot@users.noreply.github.com"
+        git config user.name "Dasha[Bot]"
         git config user.password "${{ env.GITHUB_TOKEN }}"
-        git remote set-url origin https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/dashasierra/dstaf.git
+        git remote set-url origin https://x-access-token:${{ env.GITHUB_TOKEN }}@github.com/${{ github.repository }}
         git checkout -b $BRANCH_NAME
         sed -i "s/^version = .*/version = \"${TAG_WITHOUT_V}\"/" pyproject.toml
         sed -i "s/^__version__ = .*/__version__ = \"${TAG_WITHOUT_V}\"/" dstaf/__init__.py
@@ -73,7 +98,6 @@ jobs:
     - name: Create a pull request
       id: create-pr
       env:
-        GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         PR_TITLE: ${{ github.event.pull_request.title }}
         NEW_TAG: ${{ steps.bump-tag.outputs.new_tag }}
       run: |
@@ -83,14 +107,13 @@ jobs:
           exit 0
         fi
         gh pr create --title "Auto Version Bump to ${NEW_TAG}" \
-                     --body "Automated version update triggered by GitHub Actions" \
+                     --body "Auto Version Update" \
                      --base master --head ${{ env.BRANCH_NAME }}
         PR_NUMBER=$(gh pr list --state open --base master --head ${{ env.BRANCH_NAME }} --json number --jq '.[0].number')
         echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
 
     - name: Merge the pull request
       env:
-        GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         PR_TITLE: ${{ github.event.pull_request.title }}
       run: |
         echo "PR TITLE: '${{ env.PR_TITLE }}'"
@@ -112,7 +135,6 @@ jobs:
         echo "vminor=$(echo ${{ steps.bump-tag.outputs.new_tag }} | cut -d. -f1,2)" >> $GITHUB_ENV
     - name: Create or update tags
       env:
-        GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         PR_TITLE: ${{ github.event.pull_request.title }}
       run: |
         echo "PR TITLE: '${{ env.PR_TITLE }}'"
@@ -127,7 +149,6 @@ jobs:
 
     - name: Create Release
       env:
-        GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         PR_TITLE: ${{ github.event.pull_request.title }}
       run: |
         echo "PR TITLE: '${{ env.PR_TITLE }}'"
