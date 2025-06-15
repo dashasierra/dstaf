@@ -5,20 +5,26 @@ This code is not my finest hour.
 """
 
 import os
-import jwt
+import sys
 import time
+
+import jwt
 import requests
 
 app_id = os.environ['DASHABOT_APPID']
 installation_id = os.environ['DASHABOT_IID']
 
-with open("private-key.pem", "r") as f:
-    private_key = f.read()
+private_key = sys.stdin.read().strip()
+
+if not app_id:
+    raise ValueError("DASHABOT_APPID has not been set")
+if not installation_id:
+    raise ValueError("DASHABOT_IID has not been set")
 
 now = int(time.time())
 payload = {
     'iat': now - 60,
-    'exp': now + (10 * 60),
+    'exp': now + (3 * 60),
     'iss': app_id
 }
 encoded_jwt = jwt.encode(payload, private_key, algorithm='RS256')
