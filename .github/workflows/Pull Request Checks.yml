@@ -10,12 +10,22 @@ on:
 
 jobs:
 
-  semaphore:
-    name: Version Semaphore Requirement
+  merge_requirements:
+    name: Merge Requirements
     runs-on: ubuntu-latest
     if: github.event_name != 'push' && github.event.pull_request.merged == false
     steps:
-      - name: Validate Pull Request Title
+      - name: Token Generation Requirement
+        id: get_token
+        env:
+          DASHABOT_APPID: ${{ secrets.DASHABOT_APPID }}
+          DASHABOT_IID: ${{ secrets.DASHABOT_IID }}
+        run: |
+          echo "${{ secrets.DASHABOT_PK }}" > private-key.pem
+          pip install PyJWT cryptography requests
+          python3 .github/generate_jwt.py
+
+      - name: Version Semaphore Requirement
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
           BRANCH_NAME: ${{ github.event.pull_request.head.ref }}
