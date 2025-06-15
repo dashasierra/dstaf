@@ -1,6 +1,2 @@
 # Default owner for all files
 * @dashasierra
-
-# Specific ownership for versioning-related files
-/pyproject.toml @dashasierra @dashabot[bot]
-/dstaf/__init__.py @dashasierra @dashabot[bot]
