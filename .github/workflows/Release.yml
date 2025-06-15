@@ -107,7 +107,7 @@ jobs:
           exit 0
         fi
         gh pr create --title "Auto Version Bump to ${NEW_TAG}" \
-                     --body "Automated version update by Dashabot" \
+                     --body "Auto Version Update" \
                      --base master --head ${{ env.BRANCH_NAME }}
         PR_NUMBER=$(gh pr list --state open --base master --head ${{ env.BRANCH_NAME }} --json number --jq '.[0].number')
         echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
