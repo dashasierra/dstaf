@@ -112,6 +112,14 @@ jobs:
         PR_NUMBER=$(gh pr list --state open --base master --head ${{ env.BRANCH_NAME }} --json number --jq '.[0].number')
         echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
 
+    - name: Codeowner Approval
+      env:
+        GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+      run: |
+        gh pr review ${{ env.PR_NUMBER }} --approve
+        echo "Reset GH_TOKEN"
+        echo "GH_TOKEN=$(echo ${{ env.GITHUB_TOKEN }}" >> $GITHUB_ENV
+
     - name: Merge the pull request
       env:
         PR_TITLE: ${{ github.event.pull_request.title }}
@@ -122,14 +130,6 @@ jobs:
           exit 0
         fi
         gh pr merge ${{ env.PR_NUMBER }} --merge --admin
-
-    - name: Codeowner Approval
-      env:
-        GH_TOKEN: ${{ secrets.PAT_TOKEN }}
-      run: |
-        gh pr review ${{ env.PR_NUMBER }} --approve
-        echo "Reset GH_TOKEN"
-        echo "GH_TOKEN=$(echo ${{ env.GITHUB_TOKEN }}" >> $GITHUB_ENV
 
     - name: Checkout for Tag
       uses: actions/checkout@v4
