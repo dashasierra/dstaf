@@ -23,7 +23,7 @@ jobs:
           DASHABOT_APPID: ${{ secrets.DASHABOT_APPID }}
           DASHABOT_IID: ${{ secrets.DASHABOT_IID }}
         run: |
-          pip install --upgrade PyJWT cryptography requests
+          pip install --upgrade .[cicd]
           pwd
           echo "${{ secrets.DASHABOT_PK }}" | python3 .github/generate_jwt.py
           echo "Token Requirement OK"
@@ -82,7 +82,7 @@ jobs:
 
     - name: Install Requirements
       run: |
-        pip install --upgrade bandit pylint isort pytest
+        pip install --upgrade .[test]
 
     - name: Bandit Vulnerability Scan
       run: |

@@ -32,7 +32,7 @@ jobs:
           echo Do not run automated PRs. Skip section.
           exit 0
         fi
-        pip install PyJWT cryptography requests
+        pip install .[cicd]
         echo "${{ secrets.DASHABOT_PK }}" | python3 .github/generate_jwt.py
 
     - name: Check Token Availability
