@@ -21,7 +21,7 @@ jobs:
           DASHABOT_IID: ${{ secrets.DASHABOT_IID }}
         run: |
           pip install --upgrade PyJWT cryptography requests
-          echo "${{ secrets.DASHABOT_PK }}" | python3 .github/generate_jwt.py
+          echo "${{ secrets.DASHABOT_PK }}" | python3 ../.github/generate_jwt.py
           echo "Token Requirement OK"
 
       - name: Check Token Availability
