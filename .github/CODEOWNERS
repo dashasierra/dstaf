@@ -2,5 +2,5 @@
 * @dashasierra
 
 # Specific ownership for versioning-related files
-/pyproject.toml @dashasierra @dasha-bot
-/dstaf/__init__.py @dashasierra @dasha-bot
+/pyproject.toml @dashasierra @dashabot
+/dstaf/__init__.py @dashasierra @dashabot
