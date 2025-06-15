@@ -28,7 +28,7 @@ All contributors are expected to adhere to our [Code of Conduct](CODE_OF_CONDUCT
 
 ## Getting Started
 
-1. Clone the repository locally.
+1. Fork and Clone the repository locally. (Only authorised contributors can open branches on this repository directly)
 2. Create a new branch for your changes.
 3. Commit meaningful changes with clear commit messages.
 4. Ensure code standards are met and tests pass.
