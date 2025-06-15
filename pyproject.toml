@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools >= 80.0.0"]
+requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -38,14 +38,15 @@ Issues = "https://github.com/dashasierra/dstaf/issues"
 # Code Quality Controls
 test = [
     "autopep8",
+    "bandit",
     "black",
     "pytest",
     "pylint",
     ]
 # Release Management
 cicd = [
+    "build",
     "cryptography",
-    "poetry",
     "PyJWT",
     "requests",
 ]
