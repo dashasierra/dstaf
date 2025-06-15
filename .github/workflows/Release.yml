@@ -121,6 +121,7 @@ jobs:
 
     - name: Codeowner Approval
       env:
+        PR_TITLE: ${{ github.event.pull_request.title }}
         GH_TOKEN: ${{ secrets.PAT_TOKEN }}
       run: |
         if [[ "${{ env.PR_TITLE }}" =~ ^(Doc|Auto) ]]; then
