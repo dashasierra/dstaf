@@ -45,8 +45,8 @@ test = [
     ]
 # Release Management
 cicd = [
+    "build",
     "cryptography",
-    "poetry",
     "PyJWT",
     "requests",
 ]

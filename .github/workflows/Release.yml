@@ -173,8 +173,7 @@ jobs:
           echo Do not run automated PRs. Skip section.
           exit 0
         fi
-        pip install poetry
-        poetry build --format=wheel --no-cache
+        python -m build --wheel
         gh release create "${{ steps.bump-tag.outputs.new_tag }}" \
           --repo="${{ github.repository }}" \
           --title="DStaf ${{ env.TAG_WITHOUT_V }}" \
