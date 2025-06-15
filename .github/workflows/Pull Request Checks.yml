@@ -65,6 +65,20 @@ jobs:
         python3 .github/generate_jwt.py
         echo "Token Requirement OK"
 
+    - name: Check Token Availability
+      run: |
+        if [[ "{{ $env.GH_TOKEN }}" == "{{ $env.GITHUB_TOKEN }}" ]]; then
+          echo "GH Token not set or incorrectly paired"
+          if [[ "{{ $env.GH_TOKEN }}" == "" ]]; then
+            echo "GH_TOKEN empty"
+          fi
+          if [[ "{{ $env.GITHUB_TOKEN }}" == "" ]]; then
+            echo "GITHUB_TOKEN empty"
+          fi
+          exit 1
+        fi
+        echo "Tokens OK" 
+
     - name: Bandit Vulnerability Scan
       run: |
         bandit dstaf -r -v -n 3 --severity-level=all

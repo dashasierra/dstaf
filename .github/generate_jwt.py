@@ -29,5 +29,6 @@ resp = requests.post(
 resp.raise_for_status()
 token = resp.json()["token"]
 print(f"::add-mask::{token}")
-with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
-    fh.write(f"token={token}\n")
+with open(os.environ["GITHUB_ENV"], "a") as env_file:
+    env_file.write(f"GH_TOKEN={token}\n")
+    env_file.write(f"GITHUB_TOKEN={token}\n")
