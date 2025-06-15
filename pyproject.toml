@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dstaf"
-version = "0.0.4"
+version = "0.0.0"
 authors = [
     {name="Dasha Sierra", email="pypi@dashasierra.com"},
 ]
@@ -34,9 +34,18 @@ license-files = ["LICENSE"]
 Homepage = "https://github.com/dashasierra/dstaf"
 Issues = "https://github.com/dashasierra/dstaf/issues"
 
-[tool.poetry.group.test]
-optional = true
-
-[tool.poetry.group.test.dependencies]
-autopep8 = ">=2.3.2,<3"
-pytest = ">=8.4.0,<9.0"
+[project.optional-dependencies]
+# Code Quality Controls
+test = [
+    "autopep8",
+    "black",
+    "pytest",
+    "pylint",
+    ]
+# Release Management
+cicd = [
+    "cryptography",
+    "poetry",
+    "PyJWT",
+    "requests",
+]
