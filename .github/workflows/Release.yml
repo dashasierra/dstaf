@@ -123,6 +123,14 @@ jobs:
         fi
         gh pr merge ${{ env.PR_NUMBER }} --merge --admin
 
+    - name: Codeowner Approval
+      env:
+        GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+      run: |
+        gh pr review ${{ env.PR_NUMBER }} --approve
+        echo "Reset GH_TOKEN"
+        echo "GH_TOKEN=$(echo ${{ env.GITHUB_TOKEN }}" >> $GITHUB_ENV
+
     - name: Checkout for Tag
       uses: actions/checkout@v4
       with:
