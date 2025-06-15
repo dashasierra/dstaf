@@ -38,6 +38,7 @@ Issues = "https://github.com/dashasierra/dstaf/issues"
 # Code Quality Controls
 test = [
     "autopep8",
+    "bandit",
     "black",
     "pytest",
     "pylint",
