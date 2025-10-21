@@ -17,7 +17,7 @@ jobs:
   versioning:
     name: Version Requirement
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' &&
+    if: github.event_name != 'push' &&
         github.event.pull_request.merged == false &&
         github.event.pull_request.user.login != 'dashabot[bot]'
       - name: Check Version Requirement
