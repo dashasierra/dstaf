@@ -94,7 +94,7 @@ jobs:
       - name: Checkout for Tag
         uses: actions/checkout@v4
         with:
-        ref: master
+          ref: master
 
       - uses: actions/setup-python@v6
         with:
