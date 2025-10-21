@@ -5,6 +5,7 @@ Mouse Actions
 import platform
 from abc import ABC
 from enum import Enum, EnumType
+from typing import Tuple
 
 
 class _MouseEvent(ABC):
@@ -31,7 +32,7 @@ class _MouseEvent(ABC):
 
     def get_mouse_button(
         self, key_value: int, ignore_errors: bool = None
-    ) -> [ClickType, Click]:
+    ) -> Tuple[ClickType, Click]:
         """
         Convert key value to a standardised click type
         """
@@ -44,7 +45,7 @@ class _MouseEvent(ABC):
                 raise ValueError(
                     f"The mouse button value '{key_value}' is not a known mouse button type"
                 )
-            return self.ClickType.NONE, self.Click.NONE
+        return self.ClickType.NONE, self.Click.NONE
 
     def get_types(self) -> EnumType:
         """
