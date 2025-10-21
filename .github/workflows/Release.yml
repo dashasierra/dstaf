@@ -6,173 +6,108 @@ on:
       - closed  # Only run when a PR is merged
 
 jobs:
-  release:
-    name: Create New Release
-    runs-on: ubuntu-latest
+  release_alignment:
+    name: Release
     permissions:
       contents: write
+    runs-on: ubuntu-latest
     if: >
       github.event.pull_request.merged == true &&
       github.event.pull_request.base.ref == 'master' &&
-      !startsWith(github.event.pull_request.title, 'Auto')
+      github.event.pull_request.user.login != 'dashabot[bot]' &&
+      !startsWith(github.event.pull_request.title, 'Auto') &&
+      !startsWith(github.event.pull_request.title, 'Doc')
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+      - name: get-token
+        uses: actions/create-github-app-token@v2
+        id: app-token
+        with:
+          app-id: ${{ secrets.DASHABOT_APPID }}
+          private-key: ${{ secrets.DASHABOT_PK }}
 
-    - name: Generate JWT
-      id: get_token
-      env:
-        DASHABOT_APPID: ${{ secrets.DASHABOT_APPID }}
-        DASHABOT_IID: ${{ secrets.DASHABOT_IID }}
-      run: |
-        if [[ "${{ env.PR_TITLE }}" =~ ^(Doc|Auto) ]]; then
-          echo Do not run automated PRs. Skip section.
-          exit 0
-        fi
-        pip install .[cicd]
-        echo "${{ secrets.DASHABOT_PK }}" | python3 .github/generate_jwt.py
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Check Token Availability
-      run: |
-        if [[ "${{ env.PR_TITLE }}" =~ ^(Doc|Auto) ]]; then
-          echo Do not run automated PRs. Skip section.
-          exit 0
-        fi
-        if [[ "{{ $env.GH_TOKEN }}" == "{{ $env.GITHUB_TOKEN }}" ]]; then
-          echo "GH Token not set or incorrectly paired"
-          exit 1
-        fi
-        if [[ "{{ $env.GH_TOKEN }}" == "" ]]; then
-          echo "GH_TOKEN empty"
-          exit 1
-        fi
-        if [[ "{{ $env.GITHUB_TOKEN }}" == "" ]]; then
-          echo "GITHUB_TOKEN empty"
-          exit 1
-        fi
-        echo "Tokens OK" 
+      - name: Increment Version
+        id: bump-tag
+        uses: anothrNick/github-tag-action@1.75.0
+        env:
+          WITH_V: true
+          DRY_RUN: true
+          DEFAULT_BUMP: patch
+          MAJOR_STRING_TOKEN: Major
+          MINOR_STRING_TOKEN: Minor
+          PATCH_STRING_TOKEN: Patch
+          NONE_STRING_TOKEN: Doc
 
-    - name: Increment Version
-      id: bump-tag
-      uses: anothrNick/github-tag-action@1.73.0
-      env:
-        WITH_V: true
-        DRY_RUN: true
-        DEFAULT_BUMP: patch
-        MAJOR_STRING_TOKEN: Major
-        MINOR_STRING_TOKEN: Minor
-        PATCH_STRING_TOKEN: Patch
-        NONE_STRING_TOKEN: Doc
+      - name: Get User ID
+        id: get-user-id
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: echo "userg-id=$(gh api "/apps/${{ steps.app-token.outputs.app-slug }}" --jq .id)" >> "$GITHUB_OUTPUT"
 
-    - name: Update Version Strings
-      id:
-        Create_Branch
-      env:
-        NEW_TAG: ${{ steps.bump-tag.outputs.new_tag }}
-        HEAD_TITLE: ${{ github.event.pull_request.head.ref }}
-        PR_TITLE: ${{ github.event.pull_request.title }}
-      run: |
-        echo "HEAD TITLE: '${{ env.HEAD_TITLE }}'"
-        if [[ "${{ env.HEAD_TITLE }}" =~ ^gh-actions ]]; then
-          echo Do not run automated PRs. Skip section.
-          exit 0
-        fi
-        if [[ "${{ env.PR_TITLE }}" =~ ^(Doc|Auto) ]]; then
-          echo Do not run for Auto or Doc. Skip section.
-          exit 0
-        fi
-        BRANCH_NAME="gh-actions-$(uuidgen)"
-        echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
-        TAG_WITHOUT_V="${NEW_TAG:1}"
-        echo "TAG_WITHOUT_V=$TAG_WITHOUT_V" >> $GITHUB_ENV
-        git config user.email "dashabot@users.noreply.github.com"
-        git config user.name "dashabot"
-        git config user.password "${{ env.GITHUB_TOKEN }}"
-        git remote set-url origin https://x-access-token:${{ env.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-        git checkout -b $BRANCH_NAME
-        sed -i "s/^version = .*/version = \"${TAG_WITHOUT_V}\"/" pyproject.toml
-        sed -i "s/^__version__ = .*/__version__ = \"${TAG_WITHOUT_V}\"/" dstaf/__init__.py
-        git add pyproject.toml dstaf/__init__.py
-        git commit --allow-empty -m "Bump Version to ${TAG_WITHOUT_V}"
-        git push origin $BRANCH_NAME
+      - name: Update Version Strings
+        id:
+          Create_Branch
+        env:
+          HEAD_TITLE: ${{ github.event.pull_request.head.ref }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          sudo rm -rf .git
+          git init
+          git config --global init.defaultBranch master
+          git config user.name '${{ steps.app-token.outputs.app-slug }}[bot]'
+          git config user.email '${{ steps.get-user-id.outputs.userg-id }}+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com'
+          git remote add origin https://x-access-token:${{ env.GH_TOKEN }}@github.com/${{ github.repository }}
+          git clean -fdx
+          BRANCH_NAME=gh-actions-$(uuidgen)
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+          git fetch origin master
+          git checkout -b $BRANCH_NAME origin/master
+          sed -i "s/^version = .*/version = \"${{ steps.bump-tag.outputs.new_tag }}\"/" pyproject.toml
+          sed -i "s/^__version__ = .*/__version__ = \"${{ steps.bump-tag.outputs.new_tag }}\"/" dstaf/__init__.py
+          git add pyproject.toml dstaf/__init__.py
+          git commit --allow-empty -m "Bumping to ${{ steps.bump-tag.outputs.new_tag }}"
+          git push --set-upstream origin $BRANCH_NAME
 
-    - name: Create a pull request
-      id: create-pr
-      env:
-        PR_TITLE: ${{ github.event.pull_request.title }}
-        NEW_TAG: ${{ steps.bump-tag.outputs.new_tag }}
-      run: |
-        echo "PR TITLE: '${{ env.PR_TITLE }}'"
-        if [[ "${{ env.PR_TITLE }}" =~ ^(Doc|Auto) ]]; then
-          echo Do not run automated PRs. Skip section.
-          exit 0
-        fi
-        gh pr create --title "Auto Version Bump to ${NEW_TAG}" \
-                     --body "Auto Version Update" \
-                     --base master --head ${{ env.BRANCH_NAME }}
-        PR_NUMBER=$(gh pr list --state open --base master --head ${{ env.BRANCH_NAME }} --json number --jq '.[0].number')
-        echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
+      - name: Create a pull request
+        id: create-pr
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          NEW_TAG: ${{ steps.bump-tag.outputs.new_tag }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          gh pr create --title "Auto Version Bump to ${{ env.NEW_TAG }}" \
+                       --body "Auto Version Update" \
+                       --base master --head ${{ env.BRANCH_NAME }}
+          PR_NUMBER=$(gh pr list --state open --base master --head ${{ env.BRANCH_NAME }} --json number --jq '.[0].number')
+          echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
 
-    - name: Codeowner Approval
-      env:
-        PR_TITLE: ${{ github.event.pull_request.title }}
-        GH_TOKEN: ${{ secrets.PAT_TOKEN }}
-      run: |
-        if [[ "${{ env.PR_TITLE }}" =~ ^(Doc|Auto) ]]; then
-          echo Do not run automated PRs. Skip section.
-          exit 0
-        fi
-        gh pr review ${{ env.PR_NUMBER }} --approve
-        echo "Reset GH_TOKEN"
-        echo "GH_TOKEN=${{ env.GITHUB_TOKEN }}" >> $GITHUB_ENV
+      - name: Merge the pull request
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          NEW_TAG: ${{ steps.bump-tag.outputs.new_tag }}
+        run: |
+          gh pr merge ${{ env.PR_NUMBER }} --squash --admin --body "Automated release ${{ env.NEW_TAG }}"
 
-    - name: Merge the pull request
-      env:
-        PR_TITLE: ${{ github.event.pull_request.title }}
-      run: |
-        echo "PR TITLE: '${{ env.PR_TITLE }}'"
-        if [[ "${{ env.PR_TITLE }}" =~ ^(Doc|Auto) ]]; then
-          echo Do not run automated PRs. Skip section.
-          exit 0
-        fi
-        gh pr merge ${{ env.PR_NUMBER }} --merge --admin
-
-    - name: Checkout for Tag
-      uses: actions/checkout@v4
-      with:
+      - name: Checkout for Tag
+        uses: actions/checkout@v4
+        with:
         ref: master
 
-    - name: Extract major, minor, patch v-versions
-      id: major-version
-      run: |
-        echo "vmajor=$(echo ${{ steps.bump-tag.outputs.new_tag }} | cut -d. -f1)" >> $GITHUB_ENV
-        echo "vminor=$(echo ${{ steps.bump-tag.outputs.new_tag }} | cut -d. -f1,2)" >> $GITHUB_ENV
-    - name: Create or update tags
-      env:
-        PR_TITLE: ${{ github.event.pull_request.title }}
-      run: |
-        echo "PR TITLE: '${{ env.PR_TITLE }}'"
-        if [[ "${{ env.PR_TITLE }}" =~ ^(Doc|Auto) ]]; then
-          echo Do not run automated PRs. Skip section.
-          exit 0
-        fi
-        git tag -f "$vmajor"
-        git push -f origin "$vmajor"
-        git tag -f "$vminor"
-        git push -f origin "$vminor"
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.14t'
 
-    - name: Create Release
-      env:
-        PR_TITLE: ${{ github.event.pull_request.title }}
-      run: |
-        echo "PR TITLE: '${{ env.PR_TITLE }}'"
-        if [[ "${{ env.PR_TITLE }}" =~ ^(Doc|Auto) ]]; then
-          echo Do not run automated PRs. Skip section.
-          exit 0
-        fi
-        python -m build --wheel
-        gh release create "${{ steps.bump-tag.outputs.new_tag }}" \
-          --repo="${{ github.repository }}" \
-          --title="DStaf ${{ env.TAG_WITHOUT_V }}" \
-          --generate-notes \
-          dist/*whl
+      - name: Create Release
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          python -m build --wheel
+          gh release create "${{ steps.bump-tag.outputs.new_tag }}" \
+            --repo="${{ github.repository }}" \
+            --title="${{ steps.bump-tag.outputs.new_tag }}" \
+            --generate-notes
+            dist/*whl
