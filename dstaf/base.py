@@ -379,14 +379,10 @@ class Application(ABC):
         # Import Global Server Instance
         global AppServerDefaultInstance  # pylint: disable=global-statement
 
-        self.server = (
-                server or AppServerDefaultInstance
-        )  # Use default if none provided
+        self.server = server or AppServerDefaultInstance  # Use default if none provided
         if not self.server:
             # Create default server instance, and start it
-            self.server = AppServerDefaultInstance = ApplicationServer(
-                autostart=True
-            )
+            self.server = AppServerDefaultInstance = ApplicationServer(autostart=True)
         if self.server:
             self.server.start_application(self)
         else:

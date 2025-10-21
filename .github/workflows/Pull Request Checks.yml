@@ -101,11 +101,11 @@ jobs:
 
     - name: Check Black Formatting
       run: |
-        black dstaf/*py --check -t py39
+        black dstaf/*py --check -t py314
 
     - name: Lint Scan
       run: |
-        pylint dstaf/*py --py-version "3.9"
+        pylint dstaf/*py --py-version "3.14"
 
     - name: Perform Unit Tests
       run: |
