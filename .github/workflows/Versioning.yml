@@ -4,17 +4,20 @@ permissions:
   contents: read
 
 on:
+  push:
+    branches:
+      - master  # Only run when target is master
+    tags:
+      - '*'
   pull_request:
     types: [opened, synchronize, edited]
-    branches:
-      - master  # Only run if PR targets master
 
 jobs:
 
   versioning:
     name: Version Requirement
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' &&
+    if: github.event_name == 'push' &&
         github.event.pull_request.merged == false &&
         github.event.pull_request.user.login != 'dashabot[bot]'
       - name: Check Version Requirement
