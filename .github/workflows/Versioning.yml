@@ -15,11 +15,12 @@ on:
 jobs:
 
   versioning:
-    name: Version Requirement
+    name: Version Enforcement
     runs-on: ubuntu-latest
     if: github.event_name != 'push' &&
         github.event.pull_request.merged == false &&
         github.event.pull_request.user.login != 'dashabot[bot]'
+    steps:
       - name: Check Version Requirement
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
