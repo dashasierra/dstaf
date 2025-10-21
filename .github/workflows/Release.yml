@@ -107,7 +107,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip setuptools wheel build
           python -m build --wheel
-          gh release create "${{ steps.bump-tag.outputs.new_tag }}" \
+          gh release create "DStaf ${{ steps.bump-tag.outputs.new_tag }}" \
             --repo="${{ github.repository }}" \
             --title="${{ steps.bump-tag.outputs.new_tag }}" \
             --generate-notes \
