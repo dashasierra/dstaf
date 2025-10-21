@@ -89,7 +89,7 @@ jobs:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           NEW_TAG: ${{ steps.bump-tag.outputs.new_tag }}
         run: |
-          gh pr merge ${{ env.PR_NUMBER }} --squash --admin --body "Automated release ${{ env.NEW_TAG }}"
+          gh pr merge ${{ env.PR_NUMBER }} --merge --admin --body "Automated release ${{ env.NEW_TAG }}"
 
       - name: Checkout for Tag
         uses: actions/checkout@v4
@@ -105,7 +105,7 @@ jobs:
           PR_TITLE: ${{ github.event.pull_request.title }}
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
-          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install --upgrade pip setuptools wheel build
           python -m build --wheel
           gh release create "${{ steps.bump-tag.outputs.new_tag }}" \
             --repo="${{ github.repository }}" \
