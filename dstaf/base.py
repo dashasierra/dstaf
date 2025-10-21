@@ -23,7 +23,8 @@ from uuid import UUID, uuid4
 
 from .enumerators import HorizontalAlignment, VerticalAlignment
 
-AppServerDefaultInstance = None
+# This is to be treated as a constant, so pylint ignore is added
+APP_SERVER_DEFAULT_INSTANCE = None  # pylint: disable=invalid-name
 
 
 logger = logging.getLogger(__name__)
@@ -92,12 +93,12 @@ class ApplicationServer:
         # Set this instance as the default application server if one is not
         # setup
         logging.info("ApplicationServer started (%s) instance", self.server_name)
-        global AppServerDefaultInstance  # pylint: disable=global-statement
-        if AppServerDefaultInstance is None:
+        global APP_SERVER_DEFAULT_INSTANCE  # pylint: disable=global-statement
+        if APP_SERVER_DEFAULT_INSTANCE is None:
             logging.debug(
                 "Creating default ApplicationServer instance as one is not set"
             )
-            AppServerDefaultInstance = self
+            APP_SERVER_DEFAULT_INSTANCE = self
 
     def start_application(self, app: Application) -> None:
         """
@@ -377,12 +378,16 @@ class Application(ABC):
         self.meta = app_meta
 
         # Import Global Server Instance
-        global AppServerDefaultInstance  # pylint: disable=global-statement
+        global APP_SERVER_DEFAULT_INSTANCE  # pylint: disable=global-statement
 
-        self.server = server or AppServerDefaultInstance  # Use default if none provided
+        self.server = (
+            server or APP_SERVER_DEFAULT_INSTANCE
+        )  # Use default if none provided
         if not self.server:
             # Create default server instance, and start it
-            self.server = AppServerDefaultInstance = ApplicationServer(autostart=True)
+            self.server = APP_SERVER_DEFAULT_INSTANCE = ApplicationServer(
+                autostart=True
+            )
         if self.server:
             self.server.start_application(self)
         else:
