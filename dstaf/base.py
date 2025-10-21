@@ -23,7 +23,8 @@ from uuid import UUID, uuid4
 
 from .enumerators import HorizontalAlignment, VerticalAlignment
 
-APP_SERVER_DEFAULT_INSTANCE = None
+# This is to be treated as a constant, so pylint ignore is added
+APP_SERVER_DEFAULT_INSTANCE = None  # pylint: disable=invalid-name
 
 
 logger = logging.getLogger(__name__)

@@ -1,0 +1,37 @@
+name: Versioning
+
+permissions:
+  contents: read
+
+on:
+  pull_request:
+    types: [opened, synchronize, edited]
+    branches:
+      - master  # Only run if PR targets master
+
+jobs:
+
+  versioning:
+    name: Version Requirement
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' &&
+        github.event.pull_request.merged == false &&
+        github.event.pull_request.user.login != 'dashabot[bot]'
+      - name: Check Version Requirement
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          BRANCH_NAME: ${{ github.event.pull_request.head.ref }}
+        run: |
+          if [[ ! "$PR_TITLE" =~ ^(Major|Minor|Patch|Doc) ]]; then
+            echo "::error title=Invalid PR Title::Title must start with Major, Minor, Patch, or Doc."
+            echo "  ❌ PR Title: '$PR_TITLE'"
+            echo "     Please edit the title of your Pull Request to comply with version semaphore requirements. See https://semver.org/ for definitions."
+            exit 1
+          fi
+          if [[ "$BRANCH_NAME" =~ ^gh-actions ]]; then
+            echo "::error title=Invalid Branch Name::Branches may not start with 'gh-actions'."
+            echo "  ❌️ Branch Name: '$BRANCH_NAME'"
+            echo "     Rename your branch to start with anything other than 'gh-actions'..."
+            exit 1
+          fi
+          echo "✅ PR title and branch name passed validation."

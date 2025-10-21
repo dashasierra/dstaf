@@ -22,6 +22,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.14t'
 
       - name: JWT Generation Requirement
         env:
@@ -83,6 +86,9 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+    - uses: actions/setup-python@v6
+      with:
+        python-version: '3.14t'
 
     - name: Install Requirements
       run: |
@@ -98,11 +104,11 @@ jobs:
 
     - name: Check Black Formatting
       run: |
-        black dstaf/*py --check -t py39
+        black dstaf/*py --check -t py314
 
     - name: Lint Scan
       run: |
-        pylint dstaf/*py --py-version "3.9"
+        pylint dstaf/*py --py-version "3.14"
 
     - name: Perform Unit Tests
       run: |
