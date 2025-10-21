@@ -110,5 +110,5 @@ jobs:
           gh release create "${{ steps.bump-tag.outputs.new_tag }}" \
             --repo="${{ github.repository }}" \
             --title="${{ steps.bump-tag.outputs.new_tag }}" \
-            --generate-notes
+            --generate-notes \
             dist/*whl
